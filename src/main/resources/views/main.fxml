@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
+
+<BorderPane fx:id="rootPane" xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.fasodev.gestionscolaire.ui.controllers.MainController"
+            styleClass="root-pane">
+
+    <top>
+        <HBox styleClass="header-bar" spacing="10" alignment="CENTER_LEFT">
+            <padding><Insets top="12" right="20" bottom="12" left="20"/></padding>
+            <Label text="🎓 Gestion Scolaire" styleClass="app-title"/>
+            <HBox HBox.hgrow="ALWAYS"/>
+            <Label fx:id="userLabel" text="Connecté : —" styleClass="user-label"/>
+        </HBox>
+    </top>
+
+    <left>
+        <VBox styleClass="sidebar" spacing="5" prefWidth="200">
+            <padding><Insets top="20" right="10" bottom="20" left="10"/></padding>
+            <Button text="📋 Tableau de bord" styleClass="nav-button" maxWidth="Infinity"
+                    onAction="#onTableauDeBordClick"/>
+            <Button text="👨‍🎓 Étudiants" styleClass="nav-button" maxWidth="Infinity"
+                    onAction="#onEtudiantsClick"/>
+            <Button text="🏫 Classes" styleClass="nav-button" maxWidth="Infinity"
+                    onAction="#onClassesClick"/>
+            <Button text="📚 Matières" styleClass="nav-button" maxWidth="Infinity"
+                    onAction="#onMatieresClick"/>
+            <Button text="📝 Notes" styleClass="nav-button" maxWidth="Infinity"
+                    onAction="#onNotesClick"/>
+            <Button text="📊 Calcul moyennes" styleClass="nav-button" maxWidth="Infinity"
+                    onAction="#onMoyennesClick"/>
+            <Button text="💰 Paiements" styleClass="nav-button" maxWidth="Infinity"
+                    onAction="#onPaiementsClick"/>
+            <Button text="🎓 Frais scolarité" styleClass="nav-button" maxWidth="Infinity"
+                    onAction="#onFraisScolariteClick"/>
+            <Button text="🔑 Identifiants parents" styleClass="nav-button" maxWidth="Infinity"
+                    onAction="#onIdentifiantsParentsClick"/>
+            <Button text="📊 Passage en classe" styleClass="nav-button" maxWidth="Infinity"
+                    onAction="#onPassageClasseClick"/>
+            <Button text="📋 Examen national" styleClass="nav-button" maxWidth="Infinity"
+                    onAction="#onExamenNationalClick"/>
+            <Button text="🔄 Réinscriptions" styleClass="nav-button" maxWidth="Infinity"
+                    onAction="#onReinscriptionsClick"/>
+        </VBox>
+    </left>
+
+    <center>
+        <VBox fx:id="contentArea" alignment="CENTER" spacing="15" styleClass="content-area">
+            <Label text="Bienvenue 👋" styleClass="welcome-title"/>
+            <Label fx:id="statusLabel" text="Initialisation en cours..." styleClass="welcome-subtitle"/>
+        </VBox>
+    </center>
+
+    <bottom>
+        <HBox styleClass="status-bar" spacing="10" alignment="CENTER_LEFT">
+            <padding><Insets top="8" right="20" bottom="8" left="20"/></padding>
+            <Circle fx:id="syncStatusCircle" radius="5" styleClass="sync-indicator-offline"/>
+            <Label fx:id="syncStatusLabel" text="Hors ligne" styleClass="sync-label"/>
+            <HBox HBox.hgrow="ALWAYS"/>
+            <Label fx:id="pendingSyncLabel" text="" styleClass="pending-label"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.fasodev.gestionscolaire.ui.controllers.ExamenNationalController"
+      spacing="15"
+      styleClass="content-area">
+
+    <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+
+    <!-- Titre -->
+    <Label text="📋 Gestion des Examens Nationaux" styleClass="section-title"/>
+
+    <!-- Panneau de contrôle -->
+    <VBox spacing="10" style="-fx-border-color: #e0e0e0; -fx-border-radius: 5; -fx-padding: 15;">
+
+        <!-- Sélection classe & année -->
+        <HBox spacing="20" alignment="CENTER_LEFT">
+            <Label text="Classe :" styleClass="label-bold" prefWidth="60"/>
+            <ComboBox fx:id="comboClasseExamen" prefWidth="150"/>
+            
+            <Label text="Année scolaire :" styleClass="label-bold" prefWidth="120"/>
+            <ComboBox fx:id="comboAnnee" prefWidth="150"/>
+        </HBox>
+
+        <!-- Affichage nom examen -->
+        <Label fx:id="lblNomExamen" text="📋 Examen : CEP" 
+               style="-fx-font-weight: bold; -fx-font-size: 12; -fx-text-fill: #333;"/>
+
+        <!-- Boutons d'action -->
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Button fx:id="btnCreerDossiers" text="📝 Créer Dossiers Examen" styleClass="btn-primary" prefWidth="200"/>
+            <Button fx:id="btnCreerReinscriptions" text="✓ Créer Réinscriptions" styleClass="btn-success" prefWidth="200"/>
+            <Button fx:id="btnAppliquerDecisions" text="✓ Appliquer Décisions" styleClass="btn-warning" prefWidth="200"/>
+        </HBox>
+
+        <!-- Statut -->
+        <Label fx:id="lblStatut" text="En attente..." styleClass="status-label"/>
+
+    </VBox>
+
+    <!-- Statistiques -->
+    <Label fx:id="lblStatistiques" text="📊 Résultats : 0 ADMIS | 0 REFUSÉS" 
+           style="-fx-font-size: 12; -fx-text-fill: #333; -fx-font-weight: bold;"/>
+
+    <!-- Tableau des résultats -->
+    <VBox spacing="5" VBox.vgrow="ALWAYS">
+        <Label text="Saisie des Résultats :" styleClass="label-bold"/>
+
+        <TableView fx:id="tableResultats" prefHeight="400" VBox.vgrow="ALWAYS">
+
+            <columns>
+                <TableColumn fx:id="colEtudiant" text="Étudiant" prefWidth="150"/>
+                <TableColumn fx:id="colExamen" text="Examen" prefWidth="80"/>
+                <TableColumn fx:id="colResultat" text="Résultat" prefWidth="100" style="-fx-alignment: CENTER;"/>
+                <TableColumn fx:id="colDecision" text="Décision (si refusé)" prefWidth="130" style="-fx-alignment: CENTER;"/>
+                <TableColumn fx:id="colStatutFinal" text="Statut Final" prefWidth="100" style="-fx-alignment: CENTER;"/>
+                <TableColumn fx:id="colActions" text="Actions" prefWidth="150" style="-fx-alignment: CENTER;"/>
+            </columns>
+
+            <columnResizePolicy>
+                <TableView.CONSTRAINED_RESIZE_POLICY/>
+            </columnResizePolicy>
+
+        </TableView>
+
+        <!-- Légende -->
+        <VBox spacing="5" style="-fx-background-color: #f9f9f9; -fx-padding: 10; -fx-border-radius: 3;">
+            <Label text="Instructions :" styleClass="label-bold" style="-fx-font-size: 11;"/>
+            <Label text="1️⃣ Créer dossiers : Générer un dossier par étudiant de la classe d'examen" 
+                   wrapText="true" style="-fx-font-size: 10;"/>
+            <Label text="2️⃣ Saisir résultats : Pour chaque étudiant, cliquer [✓ Admis] ou [✗ Refusé]" 
+                   wrapText="true" style="-fx-font-size: 10;"/>
+            <Label text="   Si refusé : Choisir Redouble ou Parti" 
+                   wrapText="true" style="-fx-font-size: 10; -fx-text-fill: #e74c3c;"/>
+            <Label text="3️⃣ Créer réinscriptions : Pour les admis (sauf Terminale = sortie automatique)" 
+                   wrapText="true" style="-fx-font-size: 10;"/>
+            <Label text="4️⃣ Appliquer décisions : Finaliser (Redouble/Parti pour refusés, Réinscription pour admis)" 
+                   wrapText="true" style="-fx-font-size: 10;"/>
+        </VBox>
+
+    </VBox>
+
+</VBox>

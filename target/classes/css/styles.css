@@ -1,0 +1,219 @@
+.root-pane {
+    -fx-background-color: #f4f6f8;
+    -fx-font-family: "Segoe UI", sans-serif;
+}
+
+.header-bar {
+    -fx-background-color: #1e3a5f;
+}
+
+.app-title {
+    -fx-text-fill: white;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.user-label {
+    -fx-text-fill: #cbd5e1;
+    -fx-font-size: 12px;
+}
+
+.sidebar {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 0 1 0 0;
+}
+
+.nav-button {
+    -fx-background-color: transparent;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 10 12 10 12;
+    -fx-font-size: 13px;
+    -fx-text-fill: #334155;
+    -fx-cursor: hand;
+    -fx-background-radius: 6;
+}
+
+.nav-button:hover {
+    -fx-background-color: #eef2f7;
+}
+
+.content-area {
+    -fx-background-color: #f4f6f8;
+}
+
+.welcome-title {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1e293b;
+}
+
+.welcome-subtitle {
+    -fx-font-size: 12px;
+    -fx-text-fill: #64748b;
+    -fx-text-alignment: center;
+}
+
+.status-bar {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 1 0 0 0;
+}
+
+.sync-label, .pending-label {
+    -fx-font-size: 11px;
+    -fx-text-fill: #64748b;
+}
+
+/* ===== Écrans Login / Setup ===== */
+
+.login-background {
+    -fx-background-color: linear-gradient(to bottom right, #1e3a5f, #2c5282);
+}
+
+.login-card {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 20, 0, 0, 8);
+}
+
+.login-icon {
+    -fx-font-size: 32px;
+}
+
+.login-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1e293b;
+    -fx-text-alignment: center;
+}
+
+.login-subtitle {
+    -fx-font-size: 12px;
+    -fx-text-fill: #64748b;
+    -fx-text-alignment: center;
+}
+
+.field-label {
+    -fx-font-size: 11px;
+    -fx-text-fill: #475569;
+    -fx-font-weight: bold;
+}
+
+.primary-button {
+    -fx-background-color: #1e3a5f;
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-padding: 10 0 10 0;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+}
+
+.primary-button:hover {
+    -fx-background-color: #2c5282;
+}
+
+.error-label {
+    -fx-text-fill: #dc2626;
+    -fx-font-size: 11px;
+    -fx-text-alignment: center;
+}
+
+/* ===== Écrans CRUD (Classes, Étudiants, etc.) ===== */
+
+.section-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1e293b;
+}
+
+.form-panel {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 0 0 0 1;
+}
+
+.info-label {
+    -fx-font-size: 11px;
+    -fx-text-fill: #16a34a;
+}
+
+.primary-button-small {
+    -fx-background-color: #1e3a5f;
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+    -fx-padding: 8 14 8 14;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+}
+
+.primary-button-small:hover {
+    -fx-background-color: #2c5282;
+}
+
+.secondary-button {
+    -fx-background-color: #e2e8f0;
+    -fx-text-fill: #334155;
+    -fx-font-size: 12px;
+    -fx-padding: 8 14 8 14;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+}
+
+.secondary-button:hover {
+    -fx-background-color: #cbd5e1;
+}
+
+.danger-button {
+    -fx-background-color: #fef2f2;
+    -fx-text-fill: #dc2626;
+    -fx-font-size: 12px;
+    -fx-padding: 8 14 8 14;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+    -fx-border-color: #fecaca;
+    -fx-border-radius: 6;
+}
+
+.danger-button:hover {
+    -fx-background-color: #fee2e2;
+}
+
+/* ===== Écran Notes (cartes dynamiques par matière) ===== */
+
+.matiere-card {
+    -fx-background-color: #f8fafc;
+    -fx-background-radius: 8;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+}
+
+.matiere-title {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1e293b;
+}
+
+.moyenne-preview {
+    -fx-font-size: 12px;
+    -fx-text-fill: #16a34a;
+    -fx-font-weight: bold;
+}
+
+.warning-banner {
+    -fx-background-color: #fef3c7;
+    -fx-text-fill: #92400e;
+    -fx-padding: 10;
+    -fx-background-radius: 6;
+    -fx-font-size: 12px;
+}
+
+.transparent-scroll {
+    -fx-background-color: transparent;
+}
+
+.transparent-scroll > .viewport {
+    -fx-background-color: transparent;
+}

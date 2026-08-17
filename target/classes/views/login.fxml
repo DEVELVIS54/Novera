@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane xmlns="http://javafx.com/javafx/21"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.fasodev.gestionscolaire.ui.controllers.LoginController"
+           styleClass="login-background">
+
+    <VBox styleClass="login-card" maxWidth="360" alignment="CENTER" spacing="14">
+        <padding><Insets top="35" right="35" bottom="35" left="35"/></padding>
+
+        <Label text="🎓" styleClass="login-icon"/>
+        <Label text="Gestion Scolaire" styleClass="login-title"/>
+        <Label text="Connectez-vous pour continuer" styleClass="login-subtitle"/>
+
+        <VBox spacing="6">
+            <Label text="Nom d'utilisateur" styleClass="field-label"/>
+            <TextField fx:id="nomUtilisateurField" promptText="ex: directeur"/>
+        </VBox>
+
+        <VBox spacing="6">
+            <Label text="Mot de passe" styleClass="field-label"/>
+            <PasswordField fx:id="motDePasseField" promptText="••••••••"/>
+        </VBox>
+
+        <Label fx:id="erreurLabel" styleClass="error-label" wrapText="true" managed="false" visible="false"/>
+
+        <Button text="Se connecter" styleClass="primary-button" maxWidth="Infinity"
+                onAction="#onConnexionClick" defaultButton="true"/>
+
+    </VBox>
+
+</StackPane>

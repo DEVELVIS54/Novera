@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<HBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.fasodev.gestionscolaire.ui.controllers.NotesController"
+      spacing="0" styleClass="content-area">
+
+    <!-- ===== Colonne gauche : sélection classe/trimestre + liste étudiants ===== -->
+    <VBox prefWidth="300" spacing="12" styleClass="form-panel">
+        <padding><Insets top="20" right="15" bottom="20" left="20"/></padding>
+
+        <Label text="📝 Notes" styleClass="section-title"/>
+
+        <VBox spacing="6">
+            <Label text="Classe" styleClass="field-label"/>
+            <ComboBox fx:id="classeCombo" maxWidth="Infinity"/>
+        </VBox>
+
+        <VBox spacing="6">
+            <Label text="Trimestre" styleClass="field-label"/>
+            <ComboBox fx:id="trimestreCombo" maxWidth="Infinity"/>
+        </VBox>
+
+        <Label fx:id="verrouBadge" styleClass="warning-banner" wrapText="true" managed="false" visible="false"/>
+
+        <Label text="Étudiants de la classe" styleClass="field-label"/>
+
+        <TableView fx:id="etudiantsTable" VBox.vgrow="ALWAYS">
+            <columns>
+                <TableColumn fx:id="colNom" text="Nom" prefWidth="120"/>
+                <TableColumn fx:id="colPrenom" text="Prénom" prefWidth="120"/>
+            </columns>
+        </TableView>
+
+    </VBox>
+
+    <!-- ===== Colonne droite : saisie des notes de l'étudiant sélectionné ===== -->
+    <VBox HBox.hgrow="ALWAYS" spacing="12" styleClass="content-area">
+        <padding><Insets top="20" right="20" bottom="20" left="15"/></padding>
+
+        <Label fx:id="etudiantSelectionneLabel" text="👈 Sélectionnez un étudiant dans la liste"
+               styleClass="section-title"/>
+
+        <Label fx:id="messageLabel" styleClass="info-label" wrapText="true"/>
+
+        <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="transparent-scroll">
+            <VBox fx:id="matieresContainer" spacing="10"/>
+        </ScrollPane>
+
+    </VBox>
+
+</HBox>
