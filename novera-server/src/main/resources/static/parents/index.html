@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Novera — Espace parents</title>
+<style>
+  :root { --bg:#f4f6f8; --carte:#fff; --texte:#1e293b; --doux:#64748b; --bord:#e2e8f0; --accent:#2563eb; --erreur:#b91c1c; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#0f172a; --carte:#1e293b; --texte:#f1f5f9; --doux:#94a3b8; --bord:#334155; --accent:#60a5fa; --erreur:#f87171; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background:var(--bg); color:var(--texte); }
+  main { max-width: 520px; margin: 0 auto; padding: 24px 16px; }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; }
+  p.doux { color: var(--doux); margin: 0 0 20px; }
+  .carte { background: var(--carte); border: 1px solid var(--bord); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+  label { display:block; font-size:.85rem; color:var(--doux); margin: 10px 0 4px; }
+  input { width:100%; padding:10px; border:1px solid var(--bord); border-radius:8px; background:var(--bg); color:var(--texte); font-size:1rem; }
+  button { margin-top:14px; width:100%; padding:11px; border:0; border-radius:8px; background:var(--accent); color:#fff; font-size:1rem; cursor:pointer; }
+  button.lien { background:none; color:var(--doux); width:auto; padding:0; margin:0; font-size:.85rem; text-decoration:underline; }
+  .erreur { color: var(--erreur); margin-top: 10px; min-height: 1.2em; }
+  table { width:100%; border-collapse: collapse; }
+  th, td { text-align:left; padding:8px 4px; border-bottom:1px solid var(--bord); }
+  .cache { display:none; }
+</style>
+</head>
+<body>
+<main>
+  <h1>🎓 Novera</h1>
+  <p class="doux">Espace parents — consultation de la scolarité de votre enfant</p>
+
+  <section id="connexion" class="carte">
+    <label for="identifiant">Identifiant</label>
+    <input id="identifiant" autocomplete="username">
+    <label for="motdepasse">Mot de passe</label>
+    <input id="motdepasse" type="password" autocomplete="current-password">
+    <button id="btn-connexion" type="button">Se connecter</button>
+    <div id="erreur" class="erreur" role="alert"></div>
+  </section>
+
+  <section id="contenu" class="cache">
+    <div class="carte">
+      <strong id="eleve-nom"></strong>
+      <div class="doux" id="eleve-details"></div>
+    </div>
+    <div class="carte">
+      <strong>Moyennes</strong>
+      <table>
+        <thead><tr><th>Trimestre</th><th>Moyenne</th><th>Rang</th></tr></thead>
+        <tbody id="moyennes"></tbody>
+      </table>
+      <div class="doux" id="moyennes-vide"></div>
+    </div>
+    <div class="carte">
+      <strong>Scolarité</strong>
+      <div id="scolarite"></div>
+    </div>
+    <button class="lien" id="btn-deconnexion" type="button">Se déconnecter</button>
+  </section>
+</main>
+
+<script>
+  // Le jeton reste en mémoire uniquement : fermer l'onglet déconnecte.
+  let jeton = null;
+  const $ = (id) => document.getElementById(id);
+
+  function formatFcfa(n) { return Number(n).toLocaleString('fr-FR', { maximumFractionDigits: 0 }) + ' FCFA'; }
+
+  async function connecter() {
+    $('erreur').textContent = '';
+    try {
+      const rep = await fetch('/api/parents/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ identifiant: $('identifiant').value, motDePasse: $('motdepasse').value })
+      });
+      if (!rep.ok) {
+        $('erreur').textContent = rep.status === 429
+          ? 'Trop de tentatives. Réessayez dans quelques minutes.'
+          : 'Identifiant ou mot de passe incorrect.';
+        return;
+      }
+      jeton = (await rep.json()).token;
+      $('motdepasse').value = '';
+      await afficher();
+    } catch (e) {
+      $('erreur').textContent = 'Serveur injoignable.';
+    }
+  }
+
+  async function afficher() {
+    const rep = await fetch('/api/parents/me', { headers: { Authorization: 'Bearer ' + jeton } });
+    if (!rep.ok) { deconnecter(); $('erreur').textContent = 'Session expirée, reconnectez-vous.'; return; }
+    const d = await rep.json();
+
+    $('eleve-nom').textContent = d.eleve.nom;
+    $('eleve-details').textContent = 'Classe ' + d.eleve.classe + ' — matricule ' + d.eleve.matricule;
+
+    const corps = $('moyennes');
+    corps.replaceChildren();
+    d.moyennes.forEach((m) => {
+      const tr = document.createElement('tr');
+      [ 'T' + m.trimestre, Number(m.moyenne).toFixed(2) + ' / 20', m.rang ].forEach((v) => {
+        const td = document.createElement('td'); td.textContent = v; tr.appendChild(td);
+      });
+      corps.appendChild(tr);
+    });
+    $('moyennes-vide').textContent = d.moyennes.length ? '' : 'Aucune moyenne publiée pour le moment.';
+
+    $('scolarite').textContent = 'Déjà payé : ' + formatFcfa(d.scolarite.totalPaye)
+      + ' — Frais de la classe : ' + formatFcfa(d.scolarite.fraisDeLaClasse);
+
+    $('connexion').classList.add('cache');
+    $('contenu').classList.remove('cache');
+  }
+
+  function deconnecter() {
+    jeton = null;
+    $('contenu').classList.add('cache');
+    $('connexion').classList.remove('cache');
+  }
+
+  $('btn-connexion').addEventListener('click', connecter);
+  $('btn-deconnexion').addEventListener('click', deconnecter);
+  $('motdepasse').addEventListener('keydown', (e) => { if (e.key === 'Enter') connecter(); });
+</script>
+</body>
+</html>
