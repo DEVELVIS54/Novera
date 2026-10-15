@@ -1,0 +1,30 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: novera
+      POSTGRES_USER: novera
+      POSTGRES_PASSWORD: ${NOVERA_DB_PASSWORD:-novera}
+    volumes:
+      - novera-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U novera -d novera"]
+      interval: 5s
+      retries: 10
+
+  server:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NOVERA_DB_URL: jdbc:postgresql://db:5432/novera
+      NOVERA_DB_USER: novera
+      NOVERA_DB_PASSWORD: ${NOVERA_DB_PASSWORD:-novera}
+      NOVERA_API_KEY: ${NOVERA_API_KEY:?définir NOVERA_API_KEY}
+      NOVERA_TOKEN_SECRET: ${NOVERA_TOKEN_SECRET:?définir NOVERA_TOKEN_SECRET}
+    ports:
+      - "8080:8080"
+
+volumes:
+  novera-db:
