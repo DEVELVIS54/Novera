@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.fasodev.gestionscolaire.ui.controllers.IdentifiantsParentsController"
+      spacing="15"
+      styleClass="content-area">
+
+    <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+
+    <!-- Titre -->
+    <Label text="🔑 Gestion des identifiants parents" styleClass="section-title"/>
+
+    <!-- Panneau de contrôle -->
+    <VBox spacing="10" style="-fx-border-color: #e0e0e0; -fx-border-radius: 5; -fx-padding: 15;">
+
+        <!-- Sélection classe -->
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Label text="Classe :" styleClass="label-bold"/>
+            <ComboBox fx:id="comboClasse" prefWidth="200"/>
+            <CheckBox fx:id="chkForceRegenerer" text="Forcer régénération (supprimer anciens)"/>
+        </HBox>
+
+        <!-- Boutons d'action -->
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Button fx:id="btnGenererPourClasse" text="📝 Générer pour cette classe"
+                    styleClass="btn-primary"/>
+            <Button fx:id="btnGenererTous" text="📋 Générer pour TOUTES les classes"
+                    styleClass="btn-info"/>
+            <Separator orientation="VERTICAL"/>
+            <Button fx:id="btnVoirActifs" text="👁 Afficher accès actifs"
+                    styleClass="btn-secondary"/>
+            <Button fx:id="btnImprimerPdf" text="🖨 Imprimer en PDF"
+                    styleClass="btn-success"/>
+        </HBox>
+
+        <!-- Statut -->
+        <Label fx:id="lblStatut" text="En attente..." styleClass="status-label"/>
+
+    </VBox>
+
+    <!-- Tableau des identifiants -->
+    <VBox spacing="5" VBox.vgrow="ALWAYS">
+        <Label text="Identifiants générés :" styleClass="label-bold"/>
+
+        <TableView fx:id="tableIdentifiants" prefHeight="400" VBox.vgrow="ALWAYS">
+
+            <columns>
+                <TableColumn fx:id="colEtudiant" text="Étudiant" prefWidth="150"/>
+                <TableColumn fx:id="colClasse" text="Classe" prefWidth="80"/>
+                <TableColumn fx:id="colIdentifiant" text="Identifiant" prefWidth="150"/>
+                <TableColumn fx:id="colMotDePasse" text="Mot de passe" prefWidth="100"/>
+            </columns>
+
+            <columnResizePolicy>
+                <TableView.CONSTRAINED_RESIZE_POLICY/>
+            </columnResizePolicy>
+
+        </TableView>
+
+        <Label text="💡 Conseil : Générez les identifiants et imprimez les fiches avant la distribution aux parents."
+               wrapText="true"
+               styleClass="help-text"/>
+
+    </VBox>
+
+</VBox>

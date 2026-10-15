@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.ScrollPane?>
+
+<HBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.fasodev.gestionscolaire.ui.controllers.EtudiantsController"
+      spacing="0" styleClass="content-area">
+
+    <!-- ===== Colonne gauche : liste ===== -->
+    <VBox HBox.hgrow="ALWAYS" spacing="12" styleClass="content-area">
+        <padding><Insets top="20" right="15" bottom="20" left="20"/></padding>
+
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <Label text="👨‍🎓 Étudiants" styleClass="section-title"/>
+            <HBox HBox.hgrow="ALWAYS"/>
+            <ComboBox fx:id="filtreClasseCombo" promptText="Toutes les classes"/>
+            <Button text="➕ Nouvel étudiant" styleClass="primary-button-small"
+                    onAction="#onNouvelEtudiantClick"/>
+        </HBox>
+
+        <TableView fx:id="etudiantsTable" VBox.vgrow="ALWAYS">
+            <columns>
+                <TableColumn fx:id="colNom" text="Nom" prefWidth="120"/>
+                <TableColumn fx:id="colPrenom" text="Prénom" prefWidth="120"/>
+                <TableColumn fx:id="colClasse" text="Classe" prefWidth="100"/>
+                <TableColumn fx:id="colMatricule" text="Matricule" prefWidth="100"/>
+                <TableColumn fx:id="colStatut" text="Statut" prefWidth="100"/>
+                <TableColumn fx:id="colSubvention" text="Subvention État" prefWidth="120"/>
+            </columns>
+        </TableView>
+
+        <Label fx:id="messageLabel" styleClass="info-label" wrapText="true"/>
+    </VBox>
+
+    <!-- ===== Colonne droite : formulaire ===== -->
+    <ScrollPane fitToWidth="true" prefWidth="340" styleClass="form-panel">
+    <VBox spacing="12">
+        <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+
+        <Label fx:id="formTitleLabel" text="Nouvel étudiant" styleClass="section-title"/>
+
+        <VBox spacing="6">
+            <Label text="Prénom" styleClass="field-label"/>
+            <TextField fx:id="prenomField"/>
+        </VBox>
+
+        <VBox spacing="6">
+            <Label text="Nom" styleClass="field-label"/>
+            <TextField fx:id="nomField"/>
+        </VBox>
+
+        <VBox spacing="6">
+            <Label text="Date de naissance" styleClass="field-label"/>
+            <DatePicker fx:id="dateNaissanceField" maxWidth="Infinity"/>
+        </VBox>
+
+        <VBox spacing="6">
+            <Label text="Classe" styleClass="field-label"/>
+            <ComboBox fx:id="classeCombo" maxWidth="Infinity"/>
+        </VBox>
+
+        <VBox spacing="6">
+            <Label text="Matricule (optionnel, auto-généré sinon)" styleClass="field-label"/>
+            <TextField fx:id="matriculeField" promptText="Laisser vide pour auto"/>
+        </VBox>
+
+        <CheckBox fx:id="affecteEtatCheckBox" text="Élève affecté par l'État"
+                   onAction="#onAffecteEtatChange"/>
+
+        <VBox fx:id="palierBox" spacing="6" managed="false" visible="false">
+            <Label text="Palier de subvention" styleClass="field-label"/>
+            <ComboBox fx:id="palierCombo" maxWidth="Infinity"/>
+        </VBox>
+
+        <Label fx:id="erreurLabel" styleClass="error-label" wrapText="true" managed="false" visible="false"/>
+
+        <HBox spacing="8">
+            <Button text="Enregistrer" styleClass="primary-button-small"
+                    onAction="#onEnregistrerClick" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+            <Button text="Annuler" styleClass="secondary-button"
+                    onAction="#onAnnulerClick"/>
+        </HBox>
+
+        <VBox fx:id="departBox" spacing="8" managed="false" visible="false">
+            <Label text="⚠️ Marquer comme parti" styleClass="field-label"/>
+            <DatePicker fx:id="dateDepartField" promptText="Date de départ" maxWidth="Infinity"/>
+            <TextArea fx:id="raisonDepartField" promptText="Raison (optionnel)" prefRowCount="2"/>
+            <Button text="🚪 Confirmer le départ" styleClass="danger-button" maxWidth="Infinity"
+                    onAction="#onMarquerPartiClick"/>
+        </VBox>
+
+    </VBox>
+    </ScrollPane>
+
+</HBox>
