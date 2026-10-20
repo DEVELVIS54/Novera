@@ -1,40 +1,90 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.net.URL?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
 <StackPane xmlns="http://javafx.com/javafx/21"
            xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="com.fasodev.gestionscolaire.ui.controllers.LoginController"
-           styleClass="login-background">
+           styleClass="app-root">
 
-    <VBox styleClass="login-card" maxWidth="360" alignment="CENTER" spacing="14">
-        <padding><Insets top="35" right="35" bottom="35" left="35"/></padding>
+    <stylesheets>
+        <URL value="@../css/novera-theme.css"/>
+    </stylesheets>
 
-        <Label text="🎓" styleClass="login-icon"/>
-        <Label text="Novera" styleClass="login-title"/>
-        <Label text="Connectez-vous pour continuer" styleClass="login-subtitle"/>
+    <!-- Décor : halos de couleur flous derrière la carte -->
+    <Pane fx:id="fond" mouseTransparent="true"/>
 
-        <VBox spacing="6">
-            <Label text="Nom d'utilisateur" styleClass="field-label"/>
-            <TextField fx:id="nomUtilisateurField" promptText="ex: directeur"/>
+    <HBox fx:id="carte" styleClass="lg-card" alignment="CENTER"
+          maxWidth="880" maxHeight="540" minHeight="500">
+        <StackPane.margin><Insets top="28" right="28" bottom="28" left="28"/></StackPane.margin>
+
+        <!-- Panneau de gauche : identité Novera -->
+        <StackPane styleClass="lg-hero" HBox.hgrow="ALWAYS" prefWidth="380" minWidth="300">
+            <VBox spacing="18" alignment="TOP_LEFT">
+                <padding><Insets top="38" right="36" bottom="30" left="38"/></padding>
+
+                <HBox spacing="12" alignment="CENTER_LEFT">
+                    <StackPane styleClass="lg-badge"><Label text="N"/></StackPane>
+                    <VBox>
+                        <Label text="Novera" styleClass="lg-brand"/>
+                        <Label fx:id="ecoleLabel" styleClass="lg-hero-sub"/>
+                    </VBox>
+                </HBox>
+
+                <Label text="Gérez votre école, simplement." styleClass="lg-hero-title" wrapText="true"/>
+
+                <VBox fx:id="fonctionnalites" spacing="10"/>
+            </VBox>
+
+            <StackPane fx:id="illustrationHolder" StackPane.alignment="BOTTOM_RIGHT"
+                       maxWidth="-Infinity" maxHeight="-Infinity" mouseTransparent="true">
+                <StackPane.margin><Insets right="22" bottom="18"/></StackPane.margin>
+            </StackPane>
+        </StackPane>
+
+        <!-- Panneau de droite : formulaire -->
+        <VBox styleClass="lg-form" HBox.hgrow="ALWAYS" prefWidth="460" minWidth="340"
+              alignment="CENTER_LEFT" spacing="14">
+
+            <Label text="Bon retour" styleClass="lg-title"/>
+            <Label text="Connectez-vous pour accéder à votre espace." styleClass="lg-subtitle" wrapText="true"/>
+
+            <VBox spacing="6">
+                <Label text="Nom d'utilisateur" styleClass="lg-label"/>
+                <HBox fx:id="coqueUtilisateur" styleClass="lg-shell" alignment="CENTER_LEFT" spacing="8">
+                    <StackPane fx:id="iconeUtilisateur"/>
+                    <TextField fx:id="nomUtilisateurField" promptText="ex : directeur" HBox.hgrow="ALWAYS"/>
+                </HBox>
+            </VBox>
+
+            <VBox spacing="6">
+                <Label text="Mot de passe" styleClass="lg-label"/>
+                <HBox fx:id="coqueMotDePasse" styleClass="lg-shell" alignment="CENTER_LEFT" spacing="8">
+                    <StackPane fx:id="iconeCadenas"/>
+                    <StackPane HBox.hgrow="ALWAYS">
+                        <PasswordField fx:id="motDePasseField" promptText="Votre mot de passe"/>
+                        <TextField fx:id="motDePasseVisibleField" promptText="Votre mot de passe"
+                                   visible="false" managed="false"/>
+                    </StackPane>
+                    <Button fx:id="oeilButton" styleClass="lg-eye" onAction="#onOeilClick"/>
+                </HBox>
+            </VBox>
+
+            <Label fx:id="erreurLabel" styleClass="lg-error" wrapText="true" maxWidth="Infinity" visible="false"/>
+
+            <Button fx:id="connexionButton" text="Se connecter" styleClass="lg-button" maxWidth="Infinity"
+                    onAction="#onConnexionClick" defaultButton="true"/>
+
+            <Label text="Novera · Gestion scolaire" styleClass="lg-footer"/>
         </VBox>
-
-        <VBox spacing="6">
-            <Label text="Mot de passe" styleClass="field-label"/>
-            <PasswordField fx:id="motDePasseField" promptText="••••••••"/>
-        </VBox>
-
-        <Label fx:id="erreurLabel" styleClass="error-label" wrapText="true" managed="false" visible="false"/>
-
-        <Button text="Se connecter" styleClass="primary-button" maxWidth="Infinity"
-                onAction="#onConnexionClick" defaultButton="true"/>
-
-    </VBox>
-
+    </HBox>
 </StackPane>

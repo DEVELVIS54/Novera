@@ -359,7 +359,7 @@ public final class DashboardView {
     }
 
     /** Petites formes 3D façon illustration, à droite de la bannière. */
-    private static Node decor() {
+    public static Node decor() {
         Pane formes = new Pane();
         formes.setMinSize(230, 165);
         formes.setPrefSize(230, 165);
