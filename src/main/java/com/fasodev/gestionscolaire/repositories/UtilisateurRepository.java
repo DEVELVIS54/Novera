@@ -73,6 +73,83 @@ public class UtilisateurRepository {
         }
     }
 
+    public java.util.List<Utilisateur> findAll() {
+        String sql = "SELECT * FROM utilisateurs ORDER BY role, nom_utilisateur";
+        java.util.List<Utilisateur> liste = new java.util.ArrayList<>();
+
+        try (Connection conn = db.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                liste.add(mapper(rs));
+            }
+            return liste;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur lecture utilisateurs : " + e.getMessage(), e);
+        }
+    }
+
+    public Utilisateur findById(int id) {
+        String sql = "SELECT * FROM utilisateurs WHERE id = ?";
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, id);
+            ResultSet rs = stmt.executeQuery();
+            return rs.next() ? mapper(rs) : null;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur lecture utilisateur : " + e.getMessage(), e);
+        }
+    }
+
+    public int compterAdminsActifs() {
+        String sql = "SELECT COUNT(*) FROM utilisateurs WHERE role = 'ADMIN' AND actif = 1";
+
+        try (Connection conn = db.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            return rs.next() ? rs.getInt(1) : 0;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur lecture utilisateurs : " + e.getMessage(), e);
+        }
+    }
+
+    public void changerActivation(int id, boolean actif) {
+        String sql = "UPDATE utilisateurs SET actif = ? WHERE id = ?";
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, actif ? 1 : 0);
+            stmt.setInt(2, id);
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur changement d'état utilisateur : " + e.getMessage(), e);
+        }
+    }
+
+    public void changerMotDePasse(int id, String nouveauHash) {
+        String sql = "UPDATE utilisateurs SET password_hash = ? WHERE id = ?";
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, nouveauHash);
+            stmt.setInt(2, id);
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur changement de mot de passe : " + e.getMessage(), e);
+        }
+    }
+
     private Utilisateur mapper(ResultSet rs) throws SQLException {
         Utilisateur u = new Utilisateur();
         u.setId(rs.getInt("id"));

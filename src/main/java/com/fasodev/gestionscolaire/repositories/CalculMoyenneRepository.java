@@ -171,4 +171,21 @@ public class CalculMoyenneRepository {
         }
         return resultats;
     }
+
+    /** Moyenne trimestrielle enregistrée d'un étudiant, ou 0 si non calculée. */
+    public double getMoyenneEtudiant(int etudiantId, int trimestre) {
+        String sql = "SELECT moyenne FROM moyennes_trimestrielles WHERE etudiant_id = ? AND trimestre = ?";
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, etudiantId);
+            stmt.setInt(2, trimestre);
+            ResultSet rs = stmt.executeQuery();
+            return rs.next() ? rs.getDouble("moyenne") : 0;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur lecture moyenne étudiant : " + e.getMessage(), e);
+        }
+    }
 }

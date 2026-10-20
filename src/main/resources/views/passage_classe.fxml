@@ -85,7 +85,7 @@
             <Label text="Légende :" styleClass="label-bold" style="-fx-font-size: 11;"/>
             <Label text="🟢 ADMIS : Moyenne >= seuil admission → Passe automatiquement à la classe supérieure" 
                    wrapText="true" style="-fx-font-size: 10;"/>
-            <Label text="🔴 REDOUBLE : Moyenne < seuil redoublement → Redouble sa classe actuelle" 
+            <Label text="🔴 REDOUBLE : Moyenne &lt; seuil redoublement → Redouble sa classe actuelle" 
                    wrapText="true" style="-fx-font-size: 10;"/>
             <Label text="🟡 DÉLIBÉRATION : Moyenne entre les deux seuils → Conseil de classe, décision manuelle" 
                    wrapText="true" style="-fx-font-size: 10;"/>

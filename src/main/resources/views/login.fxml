@@ -17,7 +17,7 @@
         <padding><Insets top="35" right="35" bottom="35" left="35"/></padding>
 
         <Label text="🎓" styleClass="login-icon"/>
-        <Label text="Gestion Scolaire" styleClass="login-title"/>
+        <Label text="Novera" styleClass="login-title"/>
         <Label text="Connectez-vous pour continuer" styleClass="login-subtitle"/>
 
         <VBox spacing="6">

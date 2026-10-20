@@ -23,7 +23,7 @@ public class ResultatExamenNationalRepository {
             VALUES (?, ?, ?, ?, ?, ?, ?)
             """;
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             pstmt.setInt(1, resultat.getEtudiantId());
@@ -54,7 +54,7 @@ public class ResultatExamenNationalRepository {
     public static ResultatExamenNational obtenirParId(int id) {
         String sql = "SELECT * FROM resultats_examen_national WHERE id = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, id);
@@ -86,7 +86,7 @@ public class ResultatExamenNationalRepository {
             ORDER BY e.nom, e.prenom
             """;
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, classeId);
@@ -119,7 +119,7 @@ public class ResultatExamenNationalRepository {
             ORDER BY r.date_saisie DESC
             """;
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, annee);
@@ -147,7 +147,7 @@ public class ResultatExamenNationalRepository {
             WHERE id = ?
             """;
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, resultat.getResultat());
@@ -169,7 +169,7 @@ public class ResultatExamenNationalRepository {
     public static boolean existe(int etudiantId, String annee) {
         String sql = "SELECT COUNT(*) FROM resultats_examen_national WHERE etudiant_id = ? AND annee_scolaire = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, etudiantId);
@@ -194,7 +194,7 @@ public class ResultatExamenNationalRepository {
     public static void supprimer(int id) {
         String sql = "DELETE FROM resultats_examen_national WHERE id = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, id);

@@ -89,6 +89,41 @@ public class AuthService {
         return utilisateurRepository.save(user);
     }
 
+    public java.util.List<Utilisateur> listerUtilisateurs() {
+        return utilisateurRepository.findAll();
+    }
+
+    /**
+     * Active ou désactive un compte. Garde-fous : on ne peut pas désactiver
+     * son propre compte, ni le dernier Directeur actif (sinon plus personne
+     * ne pourrait gérer l'application).
+     */
+    public void changerActivation(int utilisateurId, boolean actif) {
+        Utilisateur cible = utilisateurRepository.findById(utilisateurId);
+        if (cible == null) {
+            throw new IllegalArgumentException("Utilisateur introuvable.");
+        }
+        if (!actif) {
+            Utilisateur courant = SessionManager.getUtilisateurConnecte();
+            if (courant != null && courant.getId() == utilisateurId) {
+                throw new IllegalStateException("Tu ne peux pas désactiver ton propre compte.");
+            }
+            if (cible.isAdmin() && cible.isActif() && utilisateurRepository.compterAdminsActifs() <= 1) {
+                throw new IllegalStateException("Impossible de désactiver le dernier Directeur actif.");
+            }
+        }
+        utilisateurRepository.changerActivation(utilisateurId, actif);
+    }
+
+    public void reinitialiserMotDePasse(int utilisateurId, String nouveauMotDePasse) {
+        validerMotDePasse(nouveauMotDePasse);
+        if (utilisateurRepository.findById(utilisateurId) == null) {
+            throw new IllegalArgumentException("Utilisateur introuvable.");
+        }
+        utilisateurRepository.changerMotDePasse(
+            utilisateurId, BCrypt.hashpw(nouveauMotDePasse, BCrypt.gensalt()));
+    }
+
     private void validerNomUtilisateur(String nomUtilisateur) {
         if (nomUtilisateur == null || nomUtilisateur.trim().length() < 3) {
             throw new IllegalArgumentException(

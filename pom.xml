@@ -9,8 +9,8 @@
     <version>1.0.0</version>
     <packaging>jar</packaging>
 
-    <name>Gestion Scolaire - Desktop</name>
-    <description>Application Desktop de gestion scolaire (JavaFX)</description>
+    <name>Novera - Desktop</name>
+    <description>Novera : application desktop de gestion scolaire (JavaFX)</description>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -58,12 +58,7 @@
             <version>7.2.5</version>
         </dependency>
 
-        <!-- ===== Client HTTP (SyncService vers le Backend) ===== -->
-        <dependency>
-            <groupId>com.squareup.okhttp3</groupId>
-            <artifactId>okhttp</artifactId>
-            <version>4.12.0</version>
-        </dependency>
+        <!-- La synchronisation utilise le client HTTP intégré à Java (java.net.http). -->
 
         <!-- ===== JSON (payload de sync) ===== -->
         <dependency>

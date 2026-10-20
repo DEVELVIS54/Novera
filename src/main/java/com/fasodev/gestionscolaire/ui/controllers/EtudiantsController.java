@@ -67,7 +67,7 @@ public class EtudiantsController implements Initializable {
         colSubvention.setCellValueFactory(cell ->
             new javafx.beans.property.SimpleStringProperty(
                 cell.getValue().isAffecteEtat()
-                    ? "✅ " + cell.getValue().getPalierSubvention()
+                    ? "✅ " + (cell.getValue().getPalierSubvention() != null ? cell.getValue().getPalierSubvention() : "État")
                     : "—"
             ));
 

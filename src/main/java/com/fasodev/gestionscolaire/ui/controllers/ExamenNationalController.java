@@ -4,6 +4,7 @@ import com.fasodev.gestionscolaire.models.Classe;
 import com.fasodev.gestionscolaire.models.ResultatExamenNational;
 import com.fasodev.gestionscolaire.repositories.ClasseRepository;
 import com.fasodev.gestionscolaire.services.ExamenNationalService;
+import javafx.scene.layout.VBox;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

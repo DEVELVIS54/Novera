@@ -60,14 +60,7 @@ public class PassageClasseService {
         double moyenneAnnuelle = (moyenneT1 + moyenneT2 + moyenneT3) / 3.0;
 
         // Déterminer le statut
-        String statut;
-        if (moyenneAnnuelle >= seuilAdmission) {
-            statut = "ADMIS";
-        } else if (moyenneAnnuelle < seuilRedoublement) {
-            statut = "REDOUBLE";
-        } else {
-            statut = "DELIBERATION";
-        }
+        String statut = determinerStatut(moyenneAnnuelle, seuilAdmission, seuilRedoublement);
 
         // Créer le résultat
         ResultatPassage resultat = new ResultatPassage(
@@ -84,6 +77,19 @@ public class PassageClasseService {
         resultat.setClasseOriginId(etudiant.getClasseId());
 
         return resultat;
+    }
+
+    /**
+     * Règle de passage : ADMIS au-dessus du seuil d'admission, REDOUBLE sous le
+     * seuil de redoublement, DELIBERATION entre les deux (décision du Directeur).
+     */
+    public static String determinerStatut(double moyenneAnnuelle, double seuilAdmission, double seuilRedoublement) {
+        if (moyenneAnnuelle >= seuilAdmission) {
+            return "ADMIS";
+        } else if (moyenneAnnuelle < seuilRedoublement) {
+            return "REDOUBLE";
+        }
+        return "DELIBERATION";
     }
 
     /**
@@ -234,7 +240,10 @@ public class PassageClasseService {
     private static int determinerClasseSuivante(Classe classeActuelle) {
         // Pour l'instant, logique simple basée sur le niveau
         // À améliorer avec une vraie table de succession
-        String niveau = classeActuelle.getNiveau();
+        if (classeActuelle == null || classeActuelle.isFinDeParcours() || classeActuelle.getNiveau() == null) {
+            return 0;
+        }
+        String niveau = classeActuelle.getNiveau().trim().toLowerCase();
 
         // Exemples (À adapter selon votre structure)
         return switch (niveau) {

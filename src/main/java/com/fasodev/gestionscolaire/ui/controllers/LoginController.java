@@ -49,10 +49,11 @@ public class LoginController {
             Parent root = loader.load();
 
             Stage stage = (Stage) nomUtilisateurField.getScene().getWindow();
-            Scene scene = new Scene(root, 1000, 650);
+            Scene scene = new Scene(root, 1180, 740);
             scene.getStylesheets().add(getClass().getResource("/css/styles.css").toExternalForm());
 
             stage.setScene(scene);
+            stage.setMaximized(true);
 
         } catch (IOException e) {
             afficherErreur("Erreur lors du chargement de l'application.");

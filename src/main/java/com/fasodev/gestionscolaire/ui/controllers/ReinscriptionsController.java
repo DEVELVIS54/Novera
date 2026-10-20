@@ -2,6 +2,7 @@ package com.fasodev.gestionscolaire.ui.controllers;
 
 import com.fasodev.gestionscolaire.models.Reinscription;
 import com.fasodev.gestionscolaire.services.ReinscriptionService;
+import javafx.scene.layout.VBox;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -179,7 +180,7 @@ public class ReinscriptionsController implements Initializable {
         }
 
         private void confirmerReinscription(Reinscription reinscription) {
-            Dialog<String> dialog = new Dialog<>();
+            Dialog<ButtonType> dialog = new Dialog<>();
             dialog.setTitle("Confirmation réinscription");
             dialog.setHeaderText("Parent : " + reinscription.getNomEtudiant());
             dialog.setContentText("Nouvelle classe : " + reinscription.getNouvelle_classe_nom());
