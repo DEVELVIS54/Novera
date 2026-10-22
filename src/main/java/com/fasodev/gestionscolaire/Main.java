@@ -45,7 +45,7 @@ public class Main extends Application {
             getClass().getResource("/css/styles.css").toExternalForm()
         );
 
-        primaryStage.setTitle("Gestion Scolaire");
+        primaryStage.setTitle("Novera");
         primaryStage.setScene(scene);
         primaryStage.setMinWidth(800);
         primaryStage.setMinHeight(600);

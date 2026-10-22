@@ -101,27 +101,8 @@ public class DatabaseInitializer {
             // ===================================================
             // Étudiants
             // ===================================================
-            stmt.execute("""
-                CREATE TABLE IF NOT EXISTS etudiants (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    prenom TEXT NOT NULL,
-                    nom TEXT NOT NULL,
-                    date_naissance DATE,
-                    classe_id INTEGER NOT NULL,
-                    matricule TEXT UNIQUE,
-                    statut_scolarite TEXT DEFAULT 'actif'
-                        CHECK (statut_scolarite IN ('actif', 'parti')),
-                    date_depart DATE,
-                    raison_depart TEXT,
-                    affecte_etat INTEGER DEFAULT 0,
-                    palier_subvention TEXT CHECK (palier_subvention IN ('CEP','BEPC') OR palier_subvention IS NULL),
-                    nombre_redoublements INTEGER DEFAULT 0,
-                    subvention_active INTEGER DEFAULT 1,
-                    sync_status TEXT DEFAULT 'pending',
-                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY (classe_id) REFERENCES classes(id)
-                );
-            """);
+            stmt.execute(ddlEtudiants("etudiants", true));
+            migrerTableEtudiants(conn);
 
             // ===================================================
             // Notes
@@ -363,6 +344,18 @@ public class DatabaseInitializer {
                 WHERE NOT EXISTS (SELECT 1 FROM configuration_subvention_etat WHERE id = 1);
             """);
 
+            // ===================================================
+            // Synchronisation : chaque INSERT / UPDATE / DELETE sur une table
+            // métier est enregistré automatiquement dans sync_queue.
+            // ===================================================
+            creerTriggersSync(stmt);
+            enfilerDonneesExistantes(stmt);
+
+            // Paramètres de connexion au serveur (écran "Synchronisation")
+            ajouterColonneSiAbsente(conn, "configuration_ecole", "api_base_url", "TEXT");
+            ajouterColonneSiAbsente(conn, "configuration_ecole", "api_key", "TEXT");
+            ajouterColonneSiAbsente(conn, "configuration_ecole", "device_id", "TEXT");
+
             if (premierLancement) {
                 System.out.println("✅ Base de données créée : " + AppPaths.getDatabaseFilePath());
             } else {
@@ -374,12 +367,143 @@ public class DatabaseInitializer {
         }
     }
 
+    /** Tables métier envoyées au serveur (les comptes utilisateurs n'en font pas partie). */
+    public static final java.util.List<String> TABLES_SYNCHRONISEES = java.util.List.of(
+        "configuration_ecole", "configuration_subvention_etat",
+        "classes", "matieres", "etudiants", "notes",
+        "calcul_moyennes_trimestre", "moyennes_trimestrielles",
+        "resultats_annuels", "resultats_examen_national", "reinscriptions",
+        "frais_scolarite", "paiements", "parents"
+    );
+
+    private static final String[] COLONNES_ETUDIANTS = {
+        "id", "prenom", "nom", "date_naissance", "classe_id", "matricule",
+        "statut_scolarite", "commentaire_statut", "date_depart", "raison_depart",
+        "affecte_etat", "palier_subvention", "nombre_redoublements",
+        "subvention_active", "sync_status", "created_at"
+    };
+
+    /**
+     * Définition de la table etudiants. Le statut accepte 'sorti' et
+     * 'en_attente_reinscription' en plus de 'actif' et 'parti', car les
+     * modules Passage, Examen national et Réinscriptions les utilisent.
+     */
+    static String ddlEtudiants(String nomTable, boolean sinonExiste) {
+        return ("CREATE TABLE " + (sinonExiste ? "IF NOT EXISTS " : "") + nomTable + " (\n"
+            + "    id INTEGER PRIMARY KEY AUTOINCREMENT,\n"
+            + "    prenom TEXT NOT NULL,\n"
+            + "    nom TEXT NOT NULL,\n"
+            + "    date_naissance DATE,\n"
+            + "    classe_id INTEGER NOT NULL,\n"
+            + "    matricule TEXT UNIQUE,\n"
+            + "    statut_scolarite TEXT DEFAULT 'actif'\n"
+            + "        CHECK (statut_scolarite IN ('actif', 'parti', 'sorti', 'en_attente_reinscription')),\n"
+            + "    commentaire_statut TEXT,\n"
+            + "    date_depart DATE,\n"
+            + "    raison_depart TEXT,\n"
+            + "    affecte_etat INTEGER DEFAULT 0,\n"
+            + "    palier_subvention TEXT CHECK (palier_subvention IN ('CEP','BEPC') OR palier_subvention IS NULL),\n"
+            + "    nombre_redoublements INTEGER DEFAULT 0,\n"
+            + "    subvention_active INTEGER DEFAULT 1,\n"
+            + "    sync_status TEXT DEFAULT 'pending',\n"
+            + "    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,\n"
+            + "    FOREIGN KEY (classe_id) REFERENCES classes(id)\n"
+            + ");");
+    }
+
+    /**
+     * Met à jour une base créée par une ancienne version : élargit la contrainte
+     * CHECK du statut des étudiants (SQLite impose de recréer la table) et ajoute
+     * la colonne commentaire_statut. Les données sont conservées.
+     */
+    static void migrerTableEtudiants(Connection conn) throws SQLException {
+        String ddlActuel = null;
+        try (Statement st = conn.createStatement();
+             var rs = st.executeQuery("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'etudiants'")) {
+            if (rs.next()) ddlActuel = rs.getString(1);
+        }
+        if (ddlActuel == null || ddlActuel.contains("en_attente_reinscription")) {
+            ajouterColonneSiAbsente(conn, "etudiants", "commentaire_statut", "TEXT");
+            return;
+        }
+
+        java.util.Set<String> colonnesExistantes = new java.util.HashSet<>();
+        try (Statement st = conn.createStatement();
+             var rs = st.executeQuery("PRAGMA table_info(etudiants)")) {
+            while (rs.next()) colonnesExistantes.add(rs.getString("name").toLowerCase());
+        }
+        java.util.List<String> aCopier = new java.util.ArrayList<>();
+        for (String c : COLONNES_ETUDIANTS) {
+            if (colonnesExistantes.contains(c)) aCopier.add(c);
+        }
+        String liste = String.join(", ", aCopier);
+
+        try (Statement st = conn.createStatement()) {
+            st.execute("PRAGMA foreign_keys = OFF");
+            conn.setAutoCommit(false);
+            try {
+                st.execute("DROP TABLE IF EXISTS etudiants_new");
+                st.execute(ddlEtudiants("etudiants_new", false));
+                st.execute("INSERT INTO etudiants_new (" + liste + ") SELECT " + liste + " FROM etudiants");
+                st.execute("DROP TABLE etudiants");
+                st.execute("ALTER TABLE etudiants_new RENAME TO etudiants");
+                conn.commit();
+                System.out.println("🔧 Migration : table \"etudiants\" reconstruite (nouveaux statuts)");
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            } finally {
+                conn.setAutoCommit(true);
+                st.execute("PRAGMA foreign_keys = ON");
+            }
+        }
+        recreerIndexEtudiants(conn);
+    }
+
+    private static void recreerIndexEtudiants(Connection conn) throws SQLException {
+        try (Statement st = conn.createStatement()) {
+            st.execute("CREATE INDEX IF NOT EXISTS idx_etudiants_classe ON etudiants(classe_id)");
+        }
+    }
+
+    /** SQL des triggers qui alimentent sync_queue pour une table. */
+    static java.util.List<String> sqlTriggersSync(String table) {
+        String corps = "INSERT INTO sync_queue (operation, table_name, record_id) VALUES ('%s', '" + table + "', %s.id);";
+        return java.util.List.of(
+            "CREATE TRIGGER IF NOT EXISTS trg_sync_" + table + "_ins AFTER INSERT ON " + table
+                + " BEGIN " + corps.formatted("INSERT", "NEW") + " END;",
+            "CREATE TRIGGER IF NOT EXISTS trg_sync_" + table + "_upd AFTER UPDATE ON " + table
+                + " BEGIN " + corps.formatted("UPDATE", "NEW") + " END;",
+            "CREATE TRIGGER IF NOT EXISTS trg_sync_" + table + "_del AFTER DELETE ON " + table
+                + " BEGIN " + corps.formatted("DELETE", "OLD") + " END;"
+        );
+    }
+
+    static void creerTriggersSync(Statement stmt) throws SQLException {
+        for (String table : TABLES_SYNCHRONISEES) {
+            for (String sql : sqlTriggersSync(table)) {
+                stmt.execute(sql);
+            }
+        }
+    }
+
+    /** Met en file les lignes déjà présentes (données saisies avant l'activation de la synchro). */
+    static void enfilerDonneesExistantes(Statement stmt) throws SQLException {
+        for (String table : TABLES_SYNCHRONISEES) {
+            stmt.execute(
+                "INSERT INTO sync_queue (operation, table_name, record_id) "
+                + "SELECT 'INSERT', '" + table + "', t.id FROM " + table + " t "
+                + "WHERE t.id NOT IN (SELECT record_id FROM sync_queue WHERE table_name = '" + table + "')"
+            );
+        }
+    }
+
     /**
      * Ajoute une colonne à une table existante si elle n'y figure pas déjà.
      * Permet de faire évoluer le schéma au fil des versions de l'application
      * sans jamais supprimer/recréer la base (donc sans perte de données).
      */
-    private static void ajouterColonneSiAbsente(Connection conn, String table, String colonne, String type) {
+    static void ajouterColonneSiAbsente(Connection conn, String table, String colonne, String type) {
         try (Statement stmt = conn.createStatement()) {
 
             // Vérifie si la colonne existe déjà (via PRAGMA table_info)

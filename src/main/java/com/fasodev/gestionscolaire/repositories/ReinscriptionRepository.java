@@ -23,7 +23,7 @@ public class ReinscriptionRepository {
             VALUES (?, ?, ?, ?, ?)
             """;
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             pstmt.setInt(1, reinscription.getEtudiantId());
@@ -52,7 +52,7 @@ public class ReinscriptionRepository {
     public static Reinscription obtenirParId(int id) {
         String sql = "SELECT * FROM reinscriptions WHERE id = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, id);
@@ -84,7 +84,7 @@ public class ReinscriptionRepository {
             ORDER BY r.created_at DESC
             """;
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, annee);
@@ -116,7 +116,7 @@ public class ReinscriptionRepository {
             ORDER BY r.date_confirmation DESC
             """;
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, annee);
@@ -143,7 +143,7 @@ public class ReinscriptionRepository {
             WHERE etudiant_id = ? AND annee_scolaire = ?
             """;
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, etudiantId);
@@ -172,7 +172,7 @@ public class ReinscriptionRepository {
             WHERE id = ?
             """;
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, reinscription.getConfirmee_par());
@@ -197,7 +197,7 @@ public class ReinscriptionRepository {
             WHERE id = ?
             """;
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, reinscriptionId);
@@ -215,7 +215,7 @@ public class ReinscriptionRepository {
     public static boolean existe(int etudiantId, String annee) {
         String sql = "SELECT COUNT(*) FROM reinscriptions WHERE etudiant_id = ? AND annee_scolaire = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, etudiantId);

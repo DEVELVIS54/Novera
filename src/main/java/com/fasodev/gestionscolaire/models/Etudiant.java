@@ -18,6 +18,7 @@ public class Etudiant {
     private String palierSubvention; // "CEP" | "BEPC" | null
     private int nombreRedoublements;
     private boolean subventionActive = true;
+    private String commentaireStatut;
 
     public Etudiant() {
     }
@@ -72,4 +73,7 @@ public class Etudiant {
     public String toString() {
         return getNomComplet();
     }
+
+    public String getCommentaireStatut() { return commentaireStatut; }
+    public void setCommentaireStatut(String commentaireStatut) { this.commentaireStatut = commentaireStatut; }
 }

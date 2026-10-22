@@ -47,6 +47,29 @@ public class ConfigurationEcoleRepository {
         }
     }
 
+    public static ConfigEcole obtenirConfiguration() {
+        return new ConfigurationEcoleRepository().getConfiguration();
+    }
+
+    public static void mettreAJourSeuils(double seuilAdmission, double seuilRedoublement) {
+        String sql = """
+            UPDATE configuration_ecole
+            SET seuil_admission = ?, seuil_redoublement = ?, updated_at = CURRENT_TIMESTAMP
+            WHERE id = 1
+        """;
+
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setDouble(1, seuilAdmission);
+            stmt.setDouble(2, seuilRedoublement);
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur mise à jour des seuils : " + e.getMessage(), e);
+        }
+    }
+
     public void mettreAJourNom(String nom) {
         String sql = "UPDATE configuration_ecole SET nom = ?, updated_at = CURRENT_TIMESTAMP WHERE id = 1";
 

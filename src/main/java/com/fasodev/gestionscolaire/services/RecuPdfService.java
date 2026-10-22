@@ -138,7 +138,7 @@ public class RecuPdfService {
 
             document.add(new LineSeparator(new SolidLine()).setMarginTop(15).setMarginBottom(8));
 
-            document.add(new Paragraph("Reçu généré automatiquement — Gestion Scolaire")
+            document.add(new Paragraph("Reçu généré automatiquement — Novera")
                 .setFont(fontNormal).setFontSize(7)
                 .setFontColor(ColorConstants.GRAY)
                 .setTextAlignment(TextAlignment.CENTER));

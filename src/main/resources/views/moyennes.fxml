@@ -31,6 +31,8 @@
     <HBox spacing="10">
         <Button fx:id="calculerButton" text="📊 Calculer les moyennes de cette classe"
                 styleClass="primary-button-small" onAction="#onCalculerClick"/>
+        <Button fx:id="bulletinsButton" text="📄 Bulletins PDF de la classe"
+                styleClass="secondary-button" onAction="#onBulletinsClick"/>
         <Button fx:id="deverrouillerButton" text="🔓 Déverrouiller"
                 styleClass="danger-button" onAction="#onDeverrouillerClick"
                 visible="false" managed="false"/>

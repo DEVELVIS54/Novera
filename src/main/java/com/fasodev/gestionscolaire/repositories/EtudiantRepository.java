@@ -44,6 +44,53 @@ public class EtudiantRepository {
         return executerRequeteListe(sql, stmt -> stmt.setInt(1, classeId));
     }
 
+    // ------------------------------------------------------------------
+    // Accès statiques utilisés par les services (passage, examens, parents)
+    // ------------------------------------------------------------------
+
+    public static Etudiant obtenirParId(int id) {
+        return new EtudiantRepository().findById(id);
+    }
+
+    public static List<Etudiant> obtenirParClasse(int classeId) {
+        return new EtudiantRepository().findByClasseId(classeId);
+    }
+
+    public static List<Etudiant> obtenirTous() {
+        return new EtudiantRepository().findAll();
+    }
+
+    /**
+     * Enregistre les champs de situation scolaire d'un étudiant
+     * (classe, statut, redoublements, commentaire, départ, subvention).
+     */
+    public static void mettreAJour(Etudiant e) {
+        String sql = """
+            UPDATE etudiants
+            SET classe_id = ?, statut_scolarite = ?, nombre_redoublements = ?,
+                commentaire_statut = ?, date_depart = ?, raison_depart = ?,
+                subvention_active = ?, sync_status = 'pending'
+            WHERE id = ?
+        """;
+
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, e.getClasseId());
+            stmt.setString(2, e.getStatutScolarite());
+            stmt.setInt(3, e.getNombreRedoublements());
+            stmt.setString(4, e.getCommentaireStatut());
+            stmt.setString(5, e.getDateDepart() != null ? e.getDateDepart().toString() : null);
+            stmt.setString(6, e.getRaisonDepart());
+            stmt.setInt(7, e.isSubventionActive() ? 1 : 0);
+            stmt.setInt(8, e.getId());
+            stmt.executeUpdate();
+
+        } catch (SQLException ex) {
+            throw new RuntimeException("Erreur mise à jour situation étudiant : " + ex.getMessage(), ex);
+        }
+    }
+
     private interface StatementBinder {
         void bind(PreparedStatement stmt) throws SQLException;
     }
@@ -233,6 +280,7 @@ public class EtudiantRepository {
         e.setPalierSubvention(rs.getString("palier_subvention"));
         e.setNombreRedoublements(rs.getInt("nombre_redoublements"));
         e.setSubventionActive(rs.getInt("subvention_active") == 1);
+        e.setCommentaireStatut(rs.getString("commentaire_statut"));
 
         return e;
     }

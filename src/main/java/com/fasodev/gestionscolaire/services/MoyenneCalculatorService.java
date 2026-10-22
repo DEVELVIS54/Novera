@@ -24,4 +24,13 @@ public class MoyenneCalculatorService {
 
         return sommeCoefficients > 0 ? sommePonderee / sommeCoefficients : 0;
     }
+
+    /** Appréciation littérale associée à une moyenne sur 20. */
+    public static String appreciation(double moyenne) {
+        if (moyenne >= 16) return "Très bien";
+        if (moyenne >= 14) return "Bien";
+        if (moyenne >= 12) return "Assez bien";
+        if (moyenne >= 10) return "Passable";
+        return "Insuffisant";
+    }
 }

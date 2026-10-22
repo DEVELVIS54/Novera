@@ -79,7 +79,7 @@
         <!-- Onglet : Refusées -->
         <Tab text="✗ Refusées">
             <VBox spacing="10" style="-fx-padding: 15; -fx-alignment: CENTER;">
-                <Label text="Les réinscriptions refusées sont marquées comme \"Parti\" en base"
+                <Label text="Les réinscriptions refusées sont marquées comme &quot;Parti&quot; en base"
                        wrapText="true" style="-fx-font-size: 11;"/>
             </VBox>
         </Tab>

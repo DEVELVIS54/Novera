@@ -28,7 +28,7 @@ public class ResultatPassageRepository {
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """;
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             pstmt.setInt(1, resultat.getEtudiantId());
@@ -64,7 +64,7 @@ public class ResultatPassageRepository {
     public static ResultatPassage obtenirParId(int id) {
         String sql = "SELECT * FROM resultats_annuels WHERE id = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, id);
@@ -89,7 +89,7 @@ public class ResultatPassageRepository {
         List<ResultatPassage> resultats = new ArrayList<>();
         String sql = "SELECT * FROM resultats_annuels WHERE etudiant_id = ? ORDER BY annee_scolaire DESC";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, etudiantId);
@@ -119,7 +119,7 @@ public class ResultatPassageRepository {
             ORDER BY e.nom, e.prenom
             """;
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, classeId);
@@ -150,7 +150,7 @@ public class ResultatPassageRepository {
             ORDER BY e.nom, e.prenom
             """;
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, classeId);
@@ -182,7 +182,7 @@ public class ResultatPassageRepository {
             WHERE id = ?
             """;
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setDouble(1, resultat.getMoyenneT1());
@@ -211,7 +211,7 @@ public class ResultatPassageRepository {
     public static void supprimer(int id) {
         String sql = "DELETE FROM resultats_annuels WHERE id = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, id);
@@ -229,7 +229,7 @@ public class ResultatPassageRepository {
     public static boolean existe(int etudiantId, String annee_scolaire) {
         String sql = "SELECT COUNT(*) FROM resultats_annuels WHERE etudiant_id = ? AND annee_scolaire = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, etudiantId);

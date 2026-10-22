@@ -22,14 +22,14 @@ public class AccesParentRepository {
             VALUES (?, ?, ?, ?, ?)
             """;
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             pstmt.setInt(1, acces.getEtudiantId());
             pstmt.setString(2, acces.getIdentifiant());
             pstmt.setString(3, acces.getPasswordHash());
             pstmt.setObject(4, acces.getDateGeneration());
-            pstmt.setBoolean(5, acces.isActif() ? 1 : 0);
+            pstmt.setInt(5, acces.isActif() ? 1 : 0);
 
             pstmt.executeUpdate();
 
@@ -52,7 +52,7 @@ public class AccesParentRepository {
     public static AccesParent obtenirParIdentifiant(String identifiant) {
         String sql = "SELECT * FROM parents WHERE identifiant = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, identifiant);
@@ -77,7 +77,7 @@ public class AccesParentRepository {
         List<AccesParent> resultats = new ArrayList<>();
         String sql = "SELECT * FROM parents WHERE etudiant_id = ? ORDER BY date_generation DESC";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, etudiantId);
@@ -102,7 +102,7 @@ public class AccesParentRepository {
         List<AccesParent> resultats = new ArrayList<>();
         String sql = "SELECT * FROM parents WHERE actif = 1 ORDER BY date_generation DESC";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
              ResultSet rs = pstmt.executeQuery()) {
 
@@ -127,13 +127,13 @@ public class AccesParentRepository {
             WHERE id = ?
             """;
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, acces.getIdentifiant());
             pstmt.setString(2, acces.getPasswordHash());
             pstmt.setObject(3, acces.getDateUtilisationPremiere());
-            pstmt.setBoolean(4, acces.isActif() ? 1 : 0);
+            pstmt.setInt(4, acces.isActif() ? 1 : 0);
             pstmt.setInt(5, acces.getId());
 
             pstmt.executeUpdate();
@@ -150,7 +150,7 @@ public class AccesParentRepository {
     public static void desactiver(int accesParentId) {
         String sql = "UPDATE parents SET actif = 0 WHERE id = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, accesParentId);
@@ -168,7 +168,7 @@ public class AccesParentRepository {
     public static void supprimer(int id) {
         String sql = "DELETE FROM parents WHERE id = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, id);

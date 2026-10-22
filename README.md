@@ -1,81 +1,86 @@
-# Gestion Scolaire — Desktop (JavaFX)
+# Novera — Application desktop (JavaFX)
 
-## 🚀 Démarrage rapide
+Logiciel de gestion scolaire. L'application fonctionne **toujours en local** (SQLite) et envoie
+ses modifications au serveur Novera dès qu'il est joignable.
 
-### 1. Extraire le projet
-Dézippe `GestionScolaire-Desktop.zip` où tu veux sur ton PC 
-(ex: `C:\Users\Elvis\Projects\GestionScolaire\desktop\`)
+## Lancer
 
-### 2. Ouvrir dans VS Code
-```
-code GestionScolaire-Desktop
-```
-
-### 3. Lancer l'application (2 méthodes)
-
-**Méthode A — Terminal (recommandé pour commencer)**
 ```bash
-cd GestionScolaire-Desktop
-mvn clean javafx:run
+mvn clean javafx:run        # lancer l'application
+mvn test                    # lancer les tests
+mvn clean package           # jar unique (Shade) dans target/
 ```
 
-**Méthode B — VS Code**
-Ouvre `Main.java`, clique sur "Run" au-dessus de la méthode `main()`
-(l'extension Java gère automatiquement JavaFX si le pom.xml est bien pris en compte).
+Prérequis : JDK 21 et Maven. Au premier lancement, un assistant crée le compte **Directeur** (ADMIN).
 
-### 4. Ce que tu dois voir
-Une fenêtre s'ouvre avec :
-- ✅ Un en-tête bleu "🎓 Gestion Scolaire"
-- ✅ Une barre latérale avec les menus (Étudiants, Classes, Notes...)
-- ✅ Un message confirmant que la base SQLite locale a été créée, 
-  avec le chemin exact du fichier `.db`
-- ✅ Une barre de statut en bas (indicateur de sync, actuellement 
-  "Hors ligne" car le SyncService n'est pas encore branché)
+## Mot de passe oublié
 
-### 5. Vérifier la base SQLite créée
-Le chemin est affiché dans l'application elle-même, généralement :
+Fermez Novera, puis dans le dossier du projet :
+
 ```
-C:\Users\<TonNom>\AppData\Local\GestionScolaire\gestion_scolaire.db
+mvn compile org.codehaus.mojo:exec-maven-plugin:3.1.0:java "-Dexec.mainClass=com.fasodev.gestionscolaire.tools.ResetMotDePasse"
 ```
 
-Tu peux l'ouvrir avec **DBeaver** pour voir les tables déjà créées 
-(classes, étudiants, notes, paiements, parents, etc. — tout le 
-schéma qu'on a défini ensemble).
+Ou double-cliquez sur `reinitialiser_mot_de_passe.bat` (à la racine du projet).
 
----
+L'outil (`tools/ResetMotDePasse.java`) sauvegarde la base, liste les comptes et remplace le mot de passe
+du compte choisi. Aucune donnée n'est supprimée. Sous PowerShell, gardez les guillemets autour de `-D...`.
 
-## 📁 Structure du projet
+## Données locales
+
+La base se trouve dans le dossier de l'application (`%LOCALAPPDATA%\GestionScolaire\gestion_scolaire.db`
+sous Windows). Le nom de dossier `GestionScolaire` est conservé volontairement pour ne pas perdre
+les bases existantes. Les reçus, fiches parents et bulletins PDF sont rangés dans ses sous-dossiers.
+
+## Navigation
+
+- **Dock** en bas de la fenêtre : 5 familles (Accueil, Élèves, Évaluations, Finances, Réglages). Un clic
+  ouvre les pages de la famille ; la famille de la page ouverte reste en évidence. « Réglages »
+  (Utilisateurs, Synchronisation) n'apparaît que pour le Directeur, avec une pastille quand des
+  modifications attendent d'être envoyées au serveur.
+- **Palette de commandes** : `Ctrl+K` (ou clic sur la barre de recherche) pour aller à une page ou
+  retrouver un élève en tapant quelques lettres. Flèches, Entrée, Échap.
+- Le **thème** (couleurs, verre, dock) est dans `src/main/resources/css/novera-theme.css`.
+
+## Modules
+
+| Module | Accès |
+|---|---|
+| Tableau de bord, Recherche | Tous |
+| Étudiants, Classes, Matières, Notes | Tous |
+| Calcul des moyennes (verrouillage) et **bulletins PDF** | Tous |
+| Passage en classe, Examen national, Réinscriptions | Tous |
+| Frais de scolarité, Paiements (reçus PDF), Identifiants parents | Tous |
+| **Utilisateurs** (créer un Secrétaire, activer/désactiver, mot de passe) | Directeur |
+| **Synchronisation** (adresse du serveur, clé, envoi manuel) | Directeur |
+
+## Synchronisation
+
+Des triggers SQLite notent chaque ajout, modification ou suppression dans `sync_queue`.
+Un service d'arrière-plan (toutes les 60 s, ou bouton « Synchroniser maintenant ») envoie ces
+opérations par lots à `POST /api/sync/batch` du serveur (voir `../novera-server`).
+Les comptes utilisateurs ne sont **jamais** envoyés, ni la clé d'accès, l'adresse du serveur
+et l'identifiant du poste.
+
+Limite connue : le serveur identifie une ligne par (table, id). Il convient donc à **un seul poste
+desktop par école**. Plusieurs postes en parallèle demanderaient des identifiants uniques (UUID).
+
+## Structure
 
 ```
 src/main/java/com/fasodev/gestionscolaire/
-├── Main.java                  ← Point d'entrée
-├── database/
-│   ├── AppPaths.java           ← Gère où stocker les données (AppData)
-│   ├── DatabaseConnection.java ← Connexion SQLite
-│   └── DatabaseInitializer.java← Création du schéma complet (18 tables)
-├── ui/controllers/
-│   └── MainController.java     ← Contrôleur de la fenêtre principale
-├── services/                   ← (vide, à remplir : logique métier)
-├── repositories/                ← (vide, à remplir : accès aux données)
-├── models/                      ← (vide, à remplir : entités Java)
-└── utils/                       ← (vide, à remplir : PDF, CSV, etc.)
-
-src/main/resources/
-├── views/main.fxml              ← Interface principale
-└── css/styles.css               ← Styles visuels
+├── Main.java
+├── database/      AppPaths, DatabaseConnection, DatabaseInitializer (schéma, migrations, triggers)
+├── models/        entités
+├── repositories/  accès SQLite (dont SyncRepository)
+├── services/      logique métier (moyennes, passage, examens, paiements, sync, bulletins…)
+└── ui/            DashboardView + controllers/ (JavaFX, FXML dans src/main/resources/views)
+src/test/java/     tests JUnit 5
 ```
 
-## ✅ Ce qui est déjà fonctionnel
-- Squelette JavaFX complet et lançable
-- Base SQLite créée automatiquement au premier lancement
-- Schéma complet (18 tables) reflétant TOUTES les fonctionnalités validées :
-  configuration école, subvention État, classes, matières, étudiants, 
-  notes, contrôle continu, calcul moyennes verrouillable, passage classe 
-  supérieure, examens nationaux, réinscriptions, frais/paiements, 
-  identifiants parents, audit trail, sync queue
+## À savoir
 
-## ⏭️ Prochaines étapes (pas encore fait)
-- Écrans CRUD (Étudiants, Classes, Notes...)
-- Services métier (calcul moyenne, classement...)
-- SyncService (connexion au Backend)
-- Génération PDF (bulletins, reçus)
+- Les moyennes trimestrielles sont uniques par (élève, trimestre) : le schéma actuel ne conserve pas
+  l'historique de plusieurs années scolaires pour un même élève. À traiter avant la 2e année d'utilisation.
+- Le passage de classe repose sur le champ « niveau » (6eme, 5eme … terminale) ; une classe marquée
+  « fin de parcours » ne passe pas à la suivante.

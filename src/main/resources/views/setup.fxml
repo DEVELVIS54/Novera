@@ -17,7 +17,7 @@
         <padding><Insets top="35" right="35" bottom="35" left="35"/></padding>
 
         <Label text="👋" styleClass="login-icon"/>
-        <Label text="Bienvenue dans Gestion Scolaire" styleClass="login-title"/>
+        <Label text="Bienvenue dans Novera" styleClass="login-title"/>
         <Label text="Configurons votre établissement et votre compte Directeur"
                styleClass="login-subtitle" wrapText="true"/>
 

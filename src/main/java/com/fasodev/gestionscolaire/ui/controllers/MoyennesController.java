@@ -23,6 +23,7 @@ public class MoyennesController implements Initializable {
     @FXML private Label statutLabel;
     @FXML private Button calculerButton;
     @FXML private Button deverrouillerButton;
+    @FXML private Button bulletinsButton;
     @FXML private VBox deverrouillageBox;
     @FXML private TextArea raisonField;
     @FXML private Label messageLabel;
@@ -120,6 +121,27 @@ public class MoyennesController implements Initializable {
 
         } catch (IllegalStateException e) {
             afficherErreur(e.getMessage());
+        }
+    }
+
+    @FXML
+    public void onBulletinsClick() {
+        Classe classe = classeCombo.getValue();
+        Integer trimestre = trimestreCombo.getValue();
+
+        if (classe == null || trimestre == null) {
+            afficherErreur("Veuillez sélectionner une classe et un trimestre.");
+            return;
+        }
+
+        try {
+            java.io.File pdf = new com.fasodev.gestionscolaire.services.BulletinPdfService()
+                .genererBulletinsClasse(classe.getId(), trimestre);
+            afficherMessage("✅ Bulletins générés : " + pdf.getAbsolutePath());
+        } catch (IllegalStateException e) {
+            afficherErreur(e.getMessage());
+        } catch (RuntimeException e) {
+            afficherErreur("Erreur lors de la génération des bulletins : " + e.getMessage());
         }
     }
 

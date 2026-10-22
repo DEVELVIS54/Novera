@@ -10,6 +10,7 @@ import com.itextpdf.layout.borders.SolidBorder;
 import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.properties.UnitValue;
 import com.itextpdf.layout.properties.HorizontalAlignment;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.VerticalAlignment;
@@ -108,7 +109,7 @@ public class FicheIdentifiantPdfService {
 
         // Contenu de la fiche
         Table ficheTable = new Table(1);
-        ficheTable.setWidthPercent(100);
+        ficheTable.setWidth(UnitValue.createPercentValue(100));
 
         // En-tête : nom de l'école
         Paragraph headerText = new Paragraph(nomEcole)

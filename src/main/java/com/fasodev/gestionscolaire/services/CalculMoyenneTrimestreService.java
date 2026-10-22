@@ -16,6 +16,15 @@ public class CalculMoyenneTrimestreService {
     private final EtudiantRepository etudiantRepository = new EtudiantRepository();
     private final NoteService noteService = new NoteService();
 
+    /**
+     * Moyenne trimestrielle enregistrée d'un étudiant (0 si non calculée).
+     * Le paramètre anneeScolaire est conservé pour l'API : le schéma actuel
+     * ne stocke qu'une année par étudiant et par trimestre.
+     */
+    public static double obtenirMoyenneEtudiant(int etudiantId, int trimestre, String anneeScolaire) {
+        return new CalculMoyenneRepository().getMoyenneEtudiant(etudiantId, trimestre);
+    }
+
     public String getStatut(int classeId, int trimestre) {
         String statut = calculMoyenneRepository.getStatut(classeId, trimestre);
         return statut != null ? statut : "non_calcule";

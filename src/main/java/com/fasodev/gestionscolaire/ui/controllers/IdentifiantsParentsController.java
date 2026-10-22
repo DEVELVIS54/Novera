@@ -1,7 +1,6 @@
 package com.fasodev.gestionscolaire.ui.controllers;
 
 import com.fasodev.gestionscolaire.models.Classe;
-import com.fasodev.gestionscolaire.models.ConfigurationEcole;
 import com.fasodev.gestionscolaire.models.ParentIdentifiantGenere;
 import com.fasodev.gestionscolaire.repositories.ClasseRepository;
 import com.fasodev.gestionscolaire.repositories.ConfigurationEcoleRepository;
@@ -220,10 +219,10 @@ public class IdentifiantsParentsController implements Initializable {
      * Récupère le sigle (initiales) de l'établissement pour les identifiants
      */
     private String obtenirSigleEcole() {
-        ConfigurationEcole config = ConfigurationEcoleRepository.obtenirConfiguration();
-        if (config != null && config.getNomEcole() != null) {
+        ConfigurationEcoleRepository.ConfigEcole config = ConfigurationEcoleRepository.obtenirConfiguration();
+        if (config != null && config.nom != null) {
             // Extraire les initiales du nom de l'école
-            String[] mots = config.getNomEcole().split("\\s+");
+            String[] mots = config.nom.split("\\s+");
             StringBuilder sigle = new StringBuilder();
             for (String mot : mots) {
                 if (!mot.isEmpty()) {
@@ -239,9 +238,9 @@ public class IdentifiantsParentsController implements Initializable {
      * Récupère le nom complet de l'école
      */
     private String obtenirNomEcole() {
-        ConfigurationEcole config = ConfigurationEcoleRepository.obtenirConfiguration();
-        if (config != null && config.getNomEcole() != null) {
-            return config.getNomEcole();
+        ConfigurationEcoleRepository.ConfigEcole config = ConfigurationEcoleRepository.obtenirConfiguration();
+        if (config != null && config.nom != null) {
+            return config.nom;
         }
         return "Établissement Scolaire";
     }

@@ -29,6 +29,14 @@ public class ClasseRepository {
         return classes;
     }
 
+    public static List<Classe> obtenirTous() {
+        return new ClasseRepository().findAll();
+    }
+
+    public static Classe obtenirParId(int id) {
+        return new ClasseRepository().findById(id);
+    }
+
     public Classe findById(int id) {
         String sql = "SELECT * FROM classes WHERE id = ?";
 

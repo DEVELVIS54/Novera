@@ -4,6 +4,7 @@ import com.fasodev.gestionscolaire.models.Classe;
 import com.fasodev.gestionscolaire.models.ResultatPassage;
 import com.fasodev.gestionscolaire.repositories.ClasseRepository;
 import com.fasodev.gestionscolaire.services.PassageClasseService;
+import javafx.scene.layout.VBox;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -294,7 +295,7 @@ public class PassageClasseController implements Initializable {
      */
     @FXML
     private void ouvrirDialogueSeuils() {
-        Dialog<Void> dialog = new Dialog<>();
+        Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Configuration des Seuils");
         dialog.setHeaderText("Modifier les seuils d'admission et redoublement");
 
