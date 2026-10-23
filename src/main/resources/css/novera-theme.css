@@ -339,3 +339,22 @@
     -fx-font-size: 12px;
     -fx-padding: 9 12 9 12;
 }
+
+/* ---------- Première configuration (complément de lg-) ---------- */
+.lg-form-compact { -fx-padding: 18 36 14 36; }
+
+.lg-step {
+    -fx-background-color: rgba(255,255,255,0.22); -fx-background-radius: 14;
+    -fx-min-width: 28; -fx-min-height: 28; -fx-pref-width: 28; -fx-pref-height: 28;
+    -fx-border-color: rgba(255,255,255,0.45); -fx-border-radius: 14;
+}
+.app-root .lg-step .label { -fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: bold; }
+
+.lg-seg { -fx-background-color: rgba(31,75,75,0.13); -fx-background-radius: 3; }
+.lg-seg-faible { -fx-background-color: #e8707c; }
+.lg-seg-moyen  { -fx-background-color: #f2b04a; }
+.lg-seg-fort   { -fx-background-color: #2fb67c; }
+
+.app-root .lg-hint { -fx-font-size: 11px; -fx-text-fill: #6a8c8c; }
+.app-root .lg-hint-ok { -fx-text-fill: #1f9d6a; }
+.app-root .lg-hint-ko { -fx-text-fill: #c4505c; }
