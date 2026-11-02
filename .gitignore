@@ -1,1 +1,29 @@
+# Maven
 target/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+
+# Bases de données locales et données générées (ne jamais versionner de données réelles)
+*.db
+*.db-journal
+*.sqlite
+bulletins/
+recus/
+fiches_identifiants/
+exports/
+logs/
+*.log
+
+# Système
+.DS_Store
+Thumbs.db
+
+# Secrets
+.env
+*.env

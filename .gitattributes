@@ -1,0 +1,20 @@
+# Normalise les fins de ligne : LF dans le dépôt, fins de ligne natives chez chacun.
+* text=auto
+
+# Fichiers qui doivent garder des fins de ligne précises
+*.bat   text eol=crlf
+*.sh    text eol=lf
+Dockerfile text eol=lf
+
+# Fichiers binaires : jamais convertis
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.ico   binary
+*.ttf   binary
+*.otf   binary
+*.woff  binary
+*.woff2 binary
+*.pdf   binary
+*.jar   binary
+*.db    binary
