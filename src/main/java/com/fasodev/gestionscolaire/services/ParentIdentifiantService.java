@@ -7,9 +7,9 @@ import com.fasodev.gestionscolaire.repositories.AccesParentRepository;
 import com.fasodev.gestionscolaire.repositories.EtudiantRepository;
 import org.mindrot.jbcrypt.BCrypt;
 
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 /**
  * Service de gestion des identifiants parents.
@@ -22,7 +22,8 @@ import java.util.Random;
  */
 public class ParentIdentifiantService {
 
-    private static final Random RANDOM = new Random();
+    /** Générateur cryptographiquement sûr : les mots de passe ne doivent pas être prévisibles. */
+    private static final SecureRandom RANDOM = new SecureRandom();
 
     /**
      * Caractères valides pour le mot de passe parent (évite 0/O, 1/I, l, confusion)
