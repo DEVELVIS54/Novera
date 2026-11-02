@@ -212,22 +212,8 @@ public class DatabaseInitializer {
                 );
             """);
 
-            stmt.execute("""
-                CREATE TABLE IF NOT EXISTS reinscriptions (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    etudiant_id INTEGER NOT NULL,
-                    resultat_examen_id INTEGER NOT NULL,
-                    nouvelle_classe_id INTEGER,
-                    statut TEXT DEFAULT 'en_attente' CHECK (statut IN ('en_attente','confirmee')),
-                    confirmee_par TEXT,
-                    date_confirmation DATETIME,
-                    annee_scolaire TEXT NOT NULL,
-                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY (etudiant_id) REFERENCES etudiants(id),
-                    FOREIGN KEY (resultat_examen_id) REFERENCES resultats_examen_national(id),
-                    FOREIGN KEY (nouvelle_classe_id) REFERENCES classes(id)
-                );
-            """);
+            stmt.execute(ddlReinscriptions("reinscriptions", true));
+            migrerTableReinscriptions(conn);
 
             // ===================================================
             // Frais scolarité & Paiements
@@ -463,6 +449,70 @@ public class DatabaseInitializer {
     private static void recreerIndexEtudiants(Connection conn) throws SQLException {
         try (Statement st = conn.createStatement()) {
             st.execute("CREATE INDEX IF NOT EXISTS idx_etudiants_classe ON etudiants(classe_id)");
+        }
+    }
+
+    private static final String COLONNES_REINSCRIPTIONS =
+        "id, etudiant_id, resultat_examen_id, nouvelle_classe_id, statut, "
+        + "confirmee_par, date_confirmation, annee_scolaire, created_at";
+
+    /**
+     * Définition de la table reinscriptions. Le statut accepte 'refusee' en plus de
+     * 'en_attente' et 'confirmee', car ReinscriptionRepository.refuser() l'écrit.
+     */
+    static String ddlReinscriptions(String nomTable, boolean sinonExiste) {
+        return """
+            CREATE TABLE %s%s (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                etudiant_id INTEGER NOT NULL,
+                resultat_examen_id INTEGER NOT NULL,
+                nouvelle_classe_id INTEGER,
+                statut TEXT DEFAULT 'en_attente' CHECK (statut IN ('en_attente','confirmee','refusee')),
+                confirmee_par TEXT,
+                date_confirmation DATETIME,
+                annee_scolaire TEXT NOT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (etudiant_id) REFERENCES etudiants(id),
+                FOREIGN KEY (resultat_examen_id) REFERENCES resultats_examen_national(id),
+                FOREIGN KEY (nouvelle_classe_id) REFERENCES classes(id)
+            )""".formatted(sinonExiste ? "IF NOT EXISTS " : "", nomTable);
+    }
+
+    /**
+     * Met à jour une base créée par une ancienne version : élargit la contrainte
+     * CHECK du statut des réinscriptions pour accepter 'refusee' (SQLite impose de
+     * recréer la table). Les données sont conservées. Les triggers de synchronisation,
+     * supprimés avec l'ancienne table, sont recréés plus loin par creerTriggersSync.
+     */
+    static void migrerTableReinscriptions(Connection conn) throws SQLException {
+        String ddlActuel = null;
+        try (Statement st = conn.createStatement();
+             var rs = st.executeQuery("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'reinscriptions'")) {
+            if (rs.next()) ddlActuel = rs.getString(1);
+        }
+        if (ddlActuel == null || ddlActuel.contains("'refusee'")) {
+            return;
+        }
+
+        try (Statement st = conn.createStatement()) {
+            st.execute("PRAGMA foreign_keys = OFF");
+            conn.setAutoCommit(false);
+            try {
+                st.execute("DROP TABLE IF EXISTS reinscriptions_new");
+                st.execute(ddlReinscriptions("reinscriptions_new", false));
+                st.execute("INSERT INTO reinscriptions_new (" + COLONNES_REINSCRIPTIONS + ") "
+                    + "SELECT " + COLONNES_REINSCRIPTIONS + " FROM reinscriptions");
+                st.execute("DROP TABLE reinscriptions");
+                st.execute("ALTER TABLE reinscriptions_new RENAME TO reinscriptions");
+                conn.commit();
+                System.out.println("🔧 Migration : table \"reinscriptions\" reconstruite (statut 'refusee')");
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            } finally {
+                conn.setAutoCommit(true);
+                st.execute("PRAGMA foreign_keys = ON");
+            }
         }
     }
 
