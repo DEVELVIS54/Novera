@@ -6,9 +6,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 /**
- * Crée le schéma complet de la base SQLite au premier lancement.
- * Si la base existe déjà, ne fait rien (les futures migrations
- * de schéma seront gérées séparément, via un système de version).
+ * Crée le schéma complet de la base SQLite au premier lancement et met à niveau
+ * une base existante (migrations historiques idempotentes). Les évolutions
+ * futures du schéma passent par {@link SchemaMigrations} (table schema_version).
  */
 public class DatabaseInitializer {
 
@@ -341,6 +341,9 @@ public class DatabaseInitializer {
             ajouterColonneSiAbsente(conn, "configuration_ecole", "api_base_url", "TEXT");
             ajouterColonneSiAbsente(conn, "configuration_ecole", "api_key", "TEXT");
             ajouterColonneSiAbsente(conn, "configuration_ecole", "device_id", "TEXT");
+
+            // Versionnement du schéma : applique les migrations numérotées (voir SchemaMigrations)
+            SchemaMigrations.appliquer(conn);
 
             if (premierLancement) {
                 System.out.println("✅ Base de données créée : " + AppPaths.getDatabaseFilePath());
