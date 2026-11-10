@@ -331,6 +331,12 @@ public class DatabaseInitializer {
             """);
 
             // ===================================================
+            // Versionnement du schéma : applique les migrations numérotées (voir SchemaMigrations).
+            // AVANT les triggers de synchronisation : une table reconstruite perd ses triggers.
+            // ===================================================
+            SchemaMigrations.appliquer(conn);
+
+            // ===================================================
             // Synchronisation : chaque INSERT / UPDATE / DELETE sur une table
             // métier est enregistré automatiquement dans sync_queue.
             // ===================================================
@@ -342,8 +348,7 @@ public class DatabaseInitializer {
             ajouterColonneSiAbsente(conn, "configuration_ecole", "api_key", "TEXT");
             ajouterColonneSiAbsente(conn, "configuration_ecole", "device_id", "TEXT");
 
-            // Versionnement du schéma : applique les migrations numérotées (voir SchemaMigrations)
-            SchemaMigrations.appliquer(conn);
+
 
             if (premierLancement) {
                 System.out.println("✅ Base de données créée : " + AppPaths.getDatabaseFilePath());

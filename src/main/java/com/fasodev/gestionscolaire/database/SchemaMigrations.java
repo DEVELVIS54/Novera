@@ -1,5 +1,7 @@
 package com.fasodev.gestionscolaire.database;
 
+import com.fasodev.gestionscolaire.utils.AnneeScolaire;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -46,9 +48,14 @@ public final class SchemaMigrations {
 
     /**
      * Migrations à appliquer après la version de base, par numéro croissant.
-     * Vide pour l'instant : la prochaine sera la version 2.
+     * La prochaine à ajouter sera la version 3.
+     *
+     * <p>Version 2 : année scolaire. Les données déjà présentes sont rattachées à
+     * l'année scolaire en cours au moment de la migration.
      */
-    static final List<Migration> MIGRATIONS = List.of();
+    static final List<Migration> MIGRATIONS = List.of(
+        MigrationAnneeScolaire.migration(AnneeScolaire.courante())
+    );
 
     private SchemaMigrations() {
     }
@@ -96,7 +103,7 @@ public final class SchemaMigrations {
         }
     }
 
-    private static void verifierNumerotation(List<Migration> migrations) {
+    static void verifierNumerotation(List<Migration> migrations) {
         int precedente = VERSION_BASE;
         for (Migration m : migrations) {
             if (m.version() <= precedente) {

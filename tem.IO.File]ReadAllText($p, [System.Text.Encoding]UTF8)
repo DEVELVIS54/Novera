@@ -1,0 +1,12 @@
+b0596a9 2026-11-07 mig année scolaire
+
+ .../java/com/fasodev/gestionscolaire/database/MigrationAnneeScolaire.java | 0
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+2bd75f9 2026-11-03 feat: versionnement du schema (table schema_version)
+
+ .../database/SchemaMigrationsTest.java             | 176 [32m+++++++++++++++++++++[m
+ 1 file changed, 176 insertions(+)
+3845a8d 2026-11-03 modification de databaseinitialiser
+
+ .../fasodev/gestionscolaire/database/DatabaseInitializer.java    | 9 [32m++++++[m[31m---[m
+ 1 file changed, 6 insertions(+), 3 deletions(-)

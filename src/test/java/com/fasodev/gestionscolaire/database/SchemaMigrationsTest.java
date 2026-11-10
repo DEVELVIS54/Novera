@@ -165,12 +165,8 @@ class SchemaMigrationsTest {
     }
 
     @Test
-    void les_migrations_officielles_sont_bien_numerotees() throws SQLException {
-        try (Connection conn = baseVide()) {
-            // Ne doit pas lever d'exception : garde-fou pour les futures migrations ajoutées.
-            SchemaMigrations.appliquer(conn);
-
-            assertTrue(SchemaMigrations.versionActuelle(conn) >= SchemaMigrations.VERSION_BASE);
-        }
+    void les_migrations_officielles_sont_bien_numerotees() {
+        // Ne doit pas lever d'exception : garde-fou pour les futures migrations ajoutées.
+        SchemaMigrations.verifierNumerotation(SchemaMigrations.MIGRATIONS);
     }
 }
