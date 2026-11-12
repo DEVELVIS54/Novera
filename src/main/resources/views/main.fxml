@@ -46,6 +46,10 @@
                 <HBox HBox.hgrow="ALWAYS"/>
 
                 <HBox styleClass="sync-chip" spacing="8" alignment="CENTER_LEFT">
+                    <Label fx:id="anneeLabel"/>
+                </HBox>
+
+                <HBox styleClass="sync-chip" spacing="8" alignment="CENTER_LEFT">
                     <Circle fx:id="syncStatusCircle" radius="5"/>
                     <Label fx:id="syncStatusLabel" text="Hors ligne"/>
                     <Label fx:id="pendingSyncLabel"/>
