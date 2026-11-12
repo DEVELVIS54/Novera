@@ -8,19 +8,29 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Calcul, verrouillage et lecture des moyennes trimestrielles. Tout concerne l'annÃ©e
+ * scolaire active (voir {@link ConfigurationEcoleRepository#obtenirAnneeActive()}).
+ */
 public class CalculMoyenneRepository {
 
     private final DatabaseConnection db = DatabaseConnection.getInstance();
 
+    private static String anneeActive() {
+        return ConfigurationEcoleRepository.obtenirAnneeActive();
+    }
+
     /** Retourne "non_calcule", "calcule_verrouille", ou null si aucune ligne n'existe encore. */
     public String getStatut(int classeId, int trimestre) {
-        String sql = "SELECT statut FROM calcul_moyennes_trimestre WHERE classe_id = ? AND trimestre = ?";
+        String sql = "SELECT statut FROM calcul_moyennes_trimestre "
+            + "WHERE classe_id = ? AND trimestre = ? AND annee_scolaire = ?";
 
         try (Connection conn = db.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, classeId);
             stmt.setInt(2, trimestre);
+            stmt.setString(3, anneeActive());
             ResultSet rs = stmt.executeQuery();
             return rs.next() ? rs.getString("statut") : null;
 
@@ -30,13 +40,16 @@ public class CalculMoyenneRepository {
     }
 
     public int obtenirOuCreerCalculId(int classeId, int trimestre) {
-        String select = "SELECT id FROM calcul_moyennes_trimestre WHERE classe_id = ? AND trimestre = ?";
+        String annee = anneeActive();
+        String select = "SELECT id FROM calcul_moyennes_trimestre "
+            + "WHERE classe_id = ? AND trimestre = ? AND annee_scolaire = ?";
 
         try (Connection conn = db.getConnection();
              PreparedStatement stmt = conn.prepareStatement(select)) {
 
             stmt.setInt(1, classeId);
             stmt.setInt(2, trimestre);
+            stmt.setString(3, annee);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) return rs.getInt("id");
 
@@ -44,18 +57,20 @@ public class CalculMoyenneRepository {
             throw new RuntimeException("Erreur lecture calcul : " + e.getMessage(), e);
         }
 
-        String insert = "INSERT INTO calcul_moyennes_trimestre (classe_id, trimestre) VALUES (?, ?)";
+        String insert = "INSERT INTO calcul_moyennes_trimestre (classe_id, trimestre, annee_scolaire) VALUES (?, ?, ?)";
+
         try (Connection conn = db.getConnection();
              PreparedStatement stmt = conn.prepareStatement(insert, Statement.RETURN_GENERATED_KEYS)) {
 
             stmt.setInt(1, classeId);
             stmt.setInt(2, trimestre);
+            stmt.setString(3, annee);
             stmt.executeUpdate();
             ResultSet keys = stmt.getGeneratedKeys();
             return keys.next() ? keys.getInt(1) : -1;
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erreur création calcul : " + e.getMessage(), e);
+            throw new RuntimeException("Erreur crÃ©ation calcul : " + e.getMessage(), e);
         }
     }
 
@@ -83,7 +98,7 @@ public class CalculMoyenneRepository {
         String sql = """
             UPDATE calcul_moyennes_trimestre
             SET statut = 'non_calcule', date_deverrouillage = ?, raison_deverrouillage = ?
-            WHERE classe_id = ? AND trimestre = ?
+            WHERE classe_id = ? AND trimestre = ? AND annee_scolaire = ?
         """;
 
         try (Connection conn = db.getConnection();
@@ -93,10 +108,11 @@ public class CalculMoyenneRepository {
             stmt.setString(2, raison);
             stmt.setInt(3, classeId);
             stmt.setInt(4, trimestre);
+            stmt.setString(5, anneeActive());
             stmt.executeUpdate();
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erreur déverrouillage : " + e.getMessage(), e);
+            throw new RuntimeException("Erreur dÃ©verrouillage : " + e.getMessage(), e);
         }
     }
 
@@ -116,9 +132,10 @@ public class CalculMoyenneRepository {
 
     public void sauvegarderMoyennes(int calculId, int classeId, int trimestre, List<MoyenneResultat> resultats) {
         String sql = """
-            INSERT INTO moyennes_trimestrielles (etudiant_id, classe_id, trimestre, moyenne, rang, calcul_id)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO moyennes_trimestrielles (etudiant_id, classe_id, trimestre, moyenne, rang, calcul_id, annee_scolaire)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
         """;
+        String annee = anneeActive();
 
         try (Connection conn = db.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -130,6 +147,7 @@ public class CalculMoyenneRepository {
                 stmt.setDouble(4, r.getMoyenne());
                 stmt.setInt(5, r.getRang());
                 stmt.setInt(6, calculId);
+                stmt.setString(7, annee);
                 stmt.addBatch();
             }
             stmt.executeBatch();
@@ -144,9 +162,10 @@ public class CalculMoyenneRepository {
             SELECT mt.*, e.prenom, e.nom
             FROM moyennes_trimestrielles mt
             JOIN etudiants e ON e.id = mt.etudiant_id
-            WHERE mt.classe_id = ? AND mt.trimestre = ?
+            WHERE mt.classe_id = ? AND mt.trimestre = ? AND mt.annee_scolaire = ?
             ORDER BY mt.rang
         """;
+
         List<MoyenneResultat> resultats = new ArrayList<>();
 
         try (Connection conn = db.getConnection();
@@ -154,6 +173,7 @@ public class CalculMoyenneRepository {
 
             stmt.setInt(1, classeId);
             stmt.setInt(2, trimestre);
+            stmt.setString(3, anneeActive());
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
@@ -169,23 +189,26 @@ public class CalculMoyenneRepository {
         } catch (SQLException e) {
             throw new RuntimeException("Erreur lecture moyennes : " + e.getMessage(), e);
         }
+
         return resultats;
     }
 
-    /** Moyenne trimestrielle enregistrée d'un étudiant, ou 0 si non calculée. */
+    /** Moyenne trimestrielle enregistrÃ©e d'un Ã©tudiant, ou 0 si non calculÃ©e. */
     public double getMoyenneEtudiant(int etudiantId, int trimestre) {
-        String sql = "SELECT moyenne FROM moyennes_trimestrielles WHERE etudiant_id = ? AND trimestre = ?";
+        String sql = "SELECT moyenne FROM moyennes_trimestrielles "
+            + "WHERE etudiant_id = ? AND trimestre = ? AND annee_scolaire = ?";
 
         try (Connection conn = db.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, etudiantId);
             stmt.setInt(2, trimestre);
+            stmt.setString(3, anneeActive());
             ResultSet rs = stmt.executeQuery();
             return rs.next() ? rs.getDouble("moyenne") : 0;
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erreur lecture moyenne étudiant : " + e.getMessage(), e);
+            throw new RuntimeException("Erreur lecture moyenne Ã©tudiant : " + e.getMessage(), e);
         }
     }
 }

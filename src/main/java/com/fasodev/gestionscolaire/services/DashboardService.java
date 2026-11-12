@@ -1,6 +1,7 @@
 package com.fasodev.gestionscolaire.services;
 
 import com.fasodev.gestionscolaire.database.DatabaseConnection;
+import com.fasodev.gestionscolaire.repositories.ConfigurationEcoleRepository;
 import com.fasodev.gestionscolaire.repositories.SyncRepository;
 
 import java.sql.Connection;
@@ -44,6 +45,7 @@ public class DashboardService {
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              Statement stmt = conn.createStatement()) {
 
+            String annee = ConfigurationEcoleRepository.obtenirAnneeActive();
             int eleves = compter(stmt, "SELECT COUNT(*) FROM etudiants WHERE statut_scolarite = 'actif'");
             int classes = compter(stmt, "SELECT COUNT(*) FROM classes");
             int matieres = compter(stmt, "SELECT COUNT(*) FROM matieres");
@@ -69,12 +71,12 @@ public class DashboardService {
                         (SELECT COUNT(*) FROM etudiants e
                           WHERE e.classe_id = c.id AND e.statut_scolarite = 'actif') AS effectif,
                         (SELECT AVG(m.moyenne) FROM moyennes_trimestrielles m
-                          WHERE m.classe_id = c.id
+                          WHERE m.classe_id = c.id AND m.annee_scolaire = '%s'
                             AND m.trimestre = (SELECT MAX(m2.trimestre) FROM moyennes_trimestrielles m2
-                                                WHERE m2.classe_id = c.id)) AS moyenne
+                                                WHERE m2.classe_id = c.id AND m2.annee_scolaire = '%s')) AS moyenne
                     FROM classes c
                     ORDER BY (moyenne IS NULL), moyenne DESC, c.nom
-                    """)) {
+                    """.formatted(annee, annee))) {
                 while (rs.next()) {
                     double moy = rs.getDouble("moyenne");
                     boolean sansMoyenne = rs.wasNull();   // à lire juste après getDouble
@@ -97,8 +99,9 @@ public class DashboardService {
                 SELECT COUNT(*) FROM classes c
                 WHERE EXISTS (SELECT 1 FROM etudiants e WHERE e.classe_id = c.id AND e.statut_scolarite = 'actif')
                   AND NOT EXISTS (SELECT 1 FROM calcul_moyennes_trimestre k
-                                   WHERE k.classe_id = c.id AND k.statut = 'calcule_verrouille')
-                """);
+                                   WHERE k.classe_id = c.id AND k.statut = 'calcule_verrouille'
+                                     AND k.annee_scolaire = '%s')
+                """.formatted(annee));
             if (sansMoyennes > 0) {
                 alertes.add(new Alerte("chart",
                     pluriel(sansMoyennes, "classe n'a", "classes n'ont") + " pas encore de moyennes calculées",

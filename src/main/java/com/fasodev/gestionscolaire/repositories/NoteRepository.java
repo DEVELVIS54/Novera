@@ -8,13 +8,25 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Notes des Ã©lÃ¨ves. Toutes les lectures et Ã©critures concernent l'annÃ©e scolaire active
+ * (voir {@link ConfigurationEcoleRepository#obtenirAnneeActive()}).
+ */
 public class NoteRepository {
 
     private final DatabaseConnection db = DatabaseConnection.getInstance();
 
-    public Note findByEtudiantMatiereTypeTrimestre(int etudiantId, int matiereId, String type, int trimestre) {
-        String sql = "SELECT * FROM notes WHERE etudiant_id = ? AND matiere_id = ? AND type = ? AND trimestre = ?";
+    private static String anneeActive() {
+        return ConfigurationEcoleRepository.obtenirAnneeActive();
+    }
 
+    public Note findByEtudiantMatiereTypeTrimestre(int etudiantId, int matiereId, String type, int trimestre) {
+        return trouver(etudiantId, matiereId, type, trimestre, anneeActive());
+    }
+
+    private Note trouver(int etudiantId, int matiereId, String type, int trimestre, String annee) {
+        String sql = "SELECT * FROM notes WHERE etudiant_id = ? AND matiere_id = ? AND type = ? "
+            + "AND trimestre = ? AND annee_scolaire = ?";
         try (Connection conn = db.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
@@ -22,6 +34,8 @@ public class NoteRepository {
             stmt.setInt(2, matiereId);
             stmt.setString(3, type);
             stmt.setInt(4, trimestre);
+            stmt.setString(5, annee);
+
             ResultSet rs = stmt.executeQuery();
             return rs.next() ? mapper(rs) : null;
 
@@ -31,7 +45,7 @@ public class NoteRepository {
     }
 
     public List<Note> findByEtudiantAndTrimestre(int etudiantId, int trimestre) {
-        String sql = "SELECT * FROM notes WHERE etudiant_id = ? AND trimestre = ?";
+        String sql = "SELECT * FROM notes WHERE etudiant_id = ? AND trimestre = ? AND annee_scolaire = ?";
         List<Note> notes = new ArrayList<>();
 
         try (Connection conn = db.getConnection();
@@ -39,6 +53,8 @@ public class NoteRepository {
 
             stmt.setInt(1, etudiantId);
             stmt.setInt(2, trimestre);
+            stmt.setString(3, anneeActive());
+
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) notes.add(mapper(rs));
 
@@ -49,22 +65,23 @@ public class NoteRepository {
     }
 
     public void upsert(Note note) {
-        Note existante = findByEtudiantMatiereTypeTrimestre(
-            note.getEtudiantId(), note.getMatiereId(), note.getType(), note.getTrimestre()
+        String annee = anneeActive();
+        Note existante = trouver(
+            note.getEtudiantId(), note.getMatiereId(), note.getType(), note.getTrimestre(), annee
         );
 
         if (existante == null) {
-            insert(note);
+            insert(note, annee);
         } else {
             note.setId(existante.getId());
             update(note);
         }
     }
 
-    private void insert(Note note) {
+    private void insert(Note note, String annee) {
         String sql = """
-            INSERT INTO notes (etudiant_id, matiere_id, type, valeur, trimestre, date_saisie, cree_par, sync_status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, 'pending')
+            INSERT INTO notes (etudiant_id, matiere_id, type, valeur, trimestre, date_saisie, cree_par, sync_status, annee_scolaire)
+            VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?)
         """;
 
         try (Connection conn = db.getConnection();
@@ -77,13 +94,14 @@ public class NoteRepository {
             stmt.setInt(5, note.getTrimestre());
             stmt.setString(6, LocalDate.now().toString());
             stmt.setString(7, note.getCreePar());
+            stmt.setString(8, annee);
             stmt.executeUpdate();
 
             ResultSet keys = stmt.getGeneratedKeys();
             if (keys.next()) note.setId(keys.getInt(1));
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erreur création note : " + e.getMessage(), e);
+            throw new RuntimeException("Erreur crÃ©ation note : " + e.getMessage(), e);
         }
     }
 
@@ -99,12 +117,13 @@ public class NoteRepository {
             stmt.executeUpdate();
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erreur mise à jour note : " + e.getMessage(), e);
+            throw new RuntimeException("Erreur mise Ã  jour note : " + e.getMessage(), e);
         }
     }
 
     public void supprimer(int etudiantId, int matiereId, String type, int trimestre) {
-        String sql = "DELETE FROM notes WHERE etudiant_id = ? AND matiere_id = ? AND type = ? AND trimestre = ?";
+        String sql = "DELETE FROM notes WHERE etudiant_id = ? AND matiere_id = ? AND type = ? "
+            + "AND trimestre = ? AND annee_scolaire = ?";
 
         try (Connection conn = db.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -113,6 +132,7 @@ public class NoteRepository {
             stmt.setInt(2, matiereId);
             stmt.setString(3, type);
             stmt.setInt(4, trimestre);
+            stmt.setString(5, anneeActive());
             stmt.executeUpdate();
 
         } catch (SQLException e) {
