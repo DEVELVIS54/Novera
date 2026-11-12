@@ -9,7 +9,10 @@ import com.fasodev.gestionscolaire.ui.DashboardView;
 import com.fasodev.gestionscolaire.ui.DockMenu;
 import com.fasodev.gestionscolaire.ui.DockMenu.Destination;
 import com.fasodev.gestionscolaire.ui.Icons;
+import com.fasodev.gestionscolaire.ui.AnneeActive;
 import com.fasodev.gestionscolaire.ui.Superposition;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -57,6 +60,7 @@ public class MainController implements javafx.fxml.Initializable {
     @FXML private VBox dockHolder;
     @FXML private StackPane searchIconHolder;
     @FXML private Label schoolLabel;
+    @FXML private Label anneeLabel;
     @FXML private Label userLabel;
     @FXML private Label roleLabel;
     @FXML private Label avatarLabel;
@@ -71,6 +75,19 @@ public class MainController implements javafx.fxml.Initializable {
     private CommandPalette palette;
     private boolean estAdmin;
 
+    /** Quand l'annÃ©e active change : met l'en-tÃªte Ã  jour et revient au tableau de bord. */
+    private final ChangeListener<String> surChangementAnnee = new ChangeListener<>() {
+        @Override
+        public void changed(ObservableValue<? extends String> observable, String ancienne, String nouvelle) {
+            if (rootPane.getScene() == null || rootPane.getScene().getWindow() == null) {
+                AnneeActive.propriete().removeListener(this);   // fenÃªtre fermÃ©e (dÃ©connexion)
+                return;
+            }
+            anneeLabel.setText("AnnÃ©e " + nouvelle);
+            aller("accueil");
+        }
+    };
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         estAdmin = SessionManager.getUtilisateurConnecte() != null
@@ -79,6 +96,9 @@ public class MainController implements javafx.fxml.Initializable {
         decorerFond();
         searchIconHolder.getChildren().add(Icons.icone("search", 16));
         afficherUtilisateur();
+        AnneeActive.rafraichir();
+        anneeLabel.setText("AnnÃ©e " + AnneeActive.lire());
+        AnneeActive.propriete().addListener(surChangementAnnee);
 
         superposition = new Superposition(couche);
         declarerPages();
@@ -127,6 +147,7 @@ public class MainController implements javafx.fxml.Initializable {
         pages.put("parents", () -> naviguerVers("/views/identifiants_parents.fxml"));
         pages.put("utilisateurs", () -> naviguerVers("/views/utilisateurs.fxml"));
         pages.put("synchronisation", () -> naviguerVers("/views/synchronisation.fxml"));
+        pages.put("annee", () -> naviguerVers("/views/annee_scolaire.fxml"));
     }
 
     private List<Destination> destinations() {
@@ -145,7 +166,8 @@ public class MainController implements javafx.fxml.Initializable {
             dest("frais", "Frais de scolarité", "receipt", "finances", false),
             dest("parents", "Identifiants parents", "key", "finances", false),
             dest("utilisateurs", "Utilisateurs", "user", "admin", true),
-            dest("synchronisation", "Synchronisation", "cloud", "admin", true)
+            dest("synchronisation", "Synchronisation", "cloud", "admin", true),
+            dest("annee", "AnnÃ©e scolaire", "flag", "admin", true)
         );
     }
 
