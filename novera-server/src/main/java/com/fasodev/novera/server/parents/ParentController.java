@@ -19,7 +19,7 @@ import java.util.Map;
 
 /**
  * Espace parents (lecture seule) : un parent se connecte avec l'identifiant et le mot de passe
- * remis par l'école, et consulte la scolarité de son enfant.
+ * remis par l'école, et consulte la scolarité de son enfant pour l'année scolaire active.
  */
 @RestController
 public class ParentController {
@@ -81,24 +81,35 @@ public class ParentController {
         if (eleve == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Élève introuvable");
         }
-
         long classeId = eleve.path("classe_id").asLong();
         JsonNode classe = lireLigne("classes", classeId);
+
+        // Année affichée : l'année active de l'école (synchronisée), sinon la plus récente de l'élève.
+        JsonNode config = lireLigne("configuration_ecole", 1);
+        String annee = AnneeScolaireParents.choisir(
+            config != null ? config.path("annee_scolaire_active").asText("") : "",
+            anneesDesMoyennes(etudiantId));
 
         Map<String, Object> reponse = new LinkedHashMap<>();
         reponse.put("eleve", Map.of(
             "nom", eleve.path("prenom").asText("") + " " + eleve.path("nom").asText(""),
             "matricule", eleve.path("matricule").asText(""),
             "classe", classe != null ? classe.path("nom").asText("") : ""));
+        if (annee != null) {
+            reponse.put("anneeScolaire", annee);
+        }
 
+        // Moyennes de l'année affichée (les lignes sans année, synchronisées avant la mise à jour,
+        // sont rattachées à l'année affichée).
         List<Map<String, Object>> moyennes = new ArrayList<>();
         List<Map<String, Object>> lignes = jdbc.queryForList("""
             SELECT payload->>'trimestre' AS trimestre, payload->>'moyenne' AS moyenne, payload->>'rang' AS rang
             FROM sync_records
             WHERE table_name = 'moyennes_trimestrielles' AND deleted = FALSE
               AND (payload->>'etudiant_id')::bigint = ?
+              AND (?::text IS NULL OR payload->>'annee_scolaire' IS NULL OR payload->>'annee_scolaire' = ?)
             ORDER BY payload->>'trimestre'
-            """, etudiantId);
+            """, etudiantId, annee, annee);
         for (Map<String, Object> l : lignes) {
             Map<String, Object> m = new LinkedHashMap<>();
             m.put("trimestre", l.get("trimestre"));
@@ -114,20 +125,48 @@ public class ParentController {
             WHERE table_name = 'paiements' AND deleted = FALSE
               AND (payload->>'etudiant_id')::bigint = ?
             """, Double.class, etudiantId);
+
         Double fraisClasse = jdbc.queryForObject("""
             SELECT COALESCE(SUM((payload->>'montant')::numeric), 0)::float8
             FROM sync_records
             WHERE table_name = 'frais_scolarite' AND deleted = FALSE
               AND (payload->>'classe_id')::bigint = ?
             """, Double.class, classeId);
-        reponse.put("scolarite", Map.of(
-            "totalPaye", totalPaye != null ? totalPaye : 0.0,
-            "fraisDeLaClasse", fraisClasse != null ? fraisClasse : 0.0));
 
+        // Réduction « subvention de l'État » : même règle que le logiciel de bureau.
+        JsonNode subvention = lireLigne("configuration_subvention_etat", 1);
+        double pourcentage = ScolariteCalcul.pourcentageReduction(
+            eleve.path("affecte_etat").asInt(0) == 1,
+            eleve.path("subvention_active").asInt(1) == 1,
+            eleve.path("palier_subvention").asText(""),
+            subvention != null ? subvention.path("reduction_palier_cep").asDouble(0) : 0,
+            subvention != null ? subvention.path("reduction_palier_bepc").asDouble(0) : 0);
+
+        double paye = totalPaye != null ? totalPaye : 0.0;
+        double fraisNormaux = fraisClasse != null ? fraisClasse : 0.0;
+        double fraisDus = ScolariteCalcul.fraisDus(fraisNormaux, pourcentage);
+
+        Map<String, Object> scolarite = new LinkedHashMap<>();
+        scolarite.put("totalPaye", paye);
+        scolarite.put("fraisDeLaClasse", fraisNormaux);
+        scolarite.put("reductionPourcentage", pourcentage);
+        scolarite.put("fraisDus", fraisDus);
+        scolarite.put("resteAPayer", ScolariteCalcul.resteAPayer(fraisDus, paye));
+        reponse.put("scolarite", scolarite);
         return reponse;
     }
 
     // ------------------------------------------------------------------
+
+    private List<String> anneesDesMoyennes(long etudiantId) {
+        return jdbc.queryForList("""
+            SELECT DISTINCT payload->>'annee_scolaire'
+            FROM sync_records
+            WHERE table_name = 'moyennes_trimestrielles' AND deleted = FALSE
+              AND (payload->>'etudiant_id')::bigint = ?
+              AND payload->>'annee_scolaire' IS NOT NULL
+            """, String.class, etudiantId);
+    }
 
     private boolean motDePasseValide(Map<String, Object> ligne, String motDePasse) {
         try {
