@@ -95,7 +95,8 @@
     const d = await rep.json();
 
     $('eleve-nom').textContent = d.eleve.nom;
-    $('eleve-details').textContent = 'Classe ' + d.eleve.classe + ' — matricule ' + d.eleve.matricule;
+    $('eleve-details').textContent = 'Classe ' + d.eleve.classe + ' — matricule ' + d.eleve.matricule
+      + (d.anneeScolaire ? ' — année scolaire ' + d.anneeScolaire : '');
 
     const corps = $('moyennes');
     corps.replaceChildren();
@@ -108,8 +109,14 @@
     });
     $('moyennes-vide').textContent = d.moyennes.length ? '' : 'Aucune moyenne publiée pour le moment.';
 
-    $('scolarite').textContent = 'Déjà payé : ' + formatFcfa(d.scolarite.totalPaye)
-      + ' — Frais de la classe : ' + formatFcfa(d.scolarite.fraisDeLaClasse);
+    const s = d.scolarite;
+    let texte = 'Frais de scolarité : ' + formatFcfa(s.fraisDus)
+      + ' — Déjà payé : ' + formatFcfa(s.totalPaye)
+      + ' — Reste à payer : ' + formatFcfa(s.resteAPayer);
+    if (s.reductionPourcentage > 0) {
+      texte += ' (subvention de l\'État : −' + s.reductionPourcentage + ' %)';
+    }
+    $('scolarite').textContent = texte;
 
     $('connexion').classList.add('cache');
     $('contenu').classList.remove('cache');
