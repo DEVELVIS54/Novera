@@ -12,7 +12,10 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.Map;
 
-/** Lecture des données synchronisées (réservée à la clé d'accès). Sert de base à l'extension web. */
+/**
+ * Lecture des données synchronisées (réservée à la clé d'accès). Sert de base à l'extension web.
+ * Les champs sensibles (hash des mots de passe, paramètres de connexion) sont retirés des réponses.
+ */
 @RestController
 public class RecordsController {
 
@@ -30,12 +33,17 @@ public class RecordsController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Table inconnue");
         }
         int borne = Math.max(1, Math.min(limit, 1000));
-        return jdbc.queryForList("""
+        List<Map<String, Object>> lignes = jdbc.queryForList("""
             SELECT record_id, payload::text AS payload, updated_at
             FROM sync_records
             WHERE table_name = ? AND deleted = FALSE AND record_id > ?
             ORDER BY record_id
             LIMIT ?
             """, table, after, borne);
+
+        for (Map<String, Object> ligne : lignes) {
+            ligne.put("payload", ChampsSensibles.masquer(table, (String) ligne.get("payload")));
+        }
+        return lignes;
     }
 }
