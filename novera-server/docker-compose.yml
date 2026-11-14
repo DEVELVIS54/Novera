@@ -24,7 +24,7 @@ services:
       NOVERA_API_KEY: ${NOVERA_API_KEY:?définir NOVERA_API_KEY}
       NOVERA_TOKEN_SECRET: ${NOVERA_TOKEN_SECRET:?définir NOVERA_TOKEN_SECRET}
     ports:
-      - "8080:8080"
+      - "${NOVERA_PORT:-8080}:8080"
 
 volumes:
   novera-db:
