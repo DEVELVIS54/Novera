@@ -6,6 +6,7 @@ import javafx.scene.layout.VBox;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import com.fasodev.gestionscolaire.repositories.ConfigurationEcoleRepository;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
@@ -83,15 +84,13 @@ public class ReinscriptionsController implements Initializable {
      * Recharge les années scolaires
      */
     private void rafraichirComboAnnees() {
-        int yearActuelle = LocalDate.now().getYear();
-        ObservableList<String> annees = FXCollections.observableArrayList();
-        annees.add((yearActuelle - 1) + "-" + yearActuelle);
-        annees.add(yearActuelle + "-" + (yearActuelle + 1));
+        ObservableList<String> annees = FXCollections.observableArrayList(ConfigurationEcoleRepository.anneesDisponibles());
+        String active = ConfigurationEcoleRepository.obtenirAnneeActive();
 
         comboAnneeEnAttente.setItems(FXCollections.observableArrayList(annees));
         comboAnneeConfirmees.setItems(FXCollections.observableArrayList(annees));
-        comboAnneeEnAttente.getSelectionModel().selectFirst();
-        comboAnneeConfirmees.getSelectionModel().selectFirst();
+        comboAnneeEnAttente.getSelectionModel().select(active);
+        comboAnneeConfirmees.getSelectionModel().select(active);
     }
 
     /**

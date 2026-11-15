@@ -8,6 +8,7 @@ import javafx.scene.layout.VBox;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import com.fasodev.gestionscolaire.repositories.ConfigurationEcoleRepository;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
@@ -103,14 +104,8 @@ public class PassageClasseController implements Initializable {
      * Recharge les années scolaires (format YYYY-YYYY)
      */
     private void rafraichirComboAnneeScolaire() {
-        int yearActuelle = LocalDate.now().getYear();
-        ObservableList<String> annees = FXCollections.observableArrayList();
-        annees.add((yearActuelle - 1) + "-" + yearActuelle);
-        annees.add(yearActuelle + "-" + (yearActuelle + 1));
-        annees.add((yearActuelle + 1) + "-" + (yearActuelle + 2));
-
-        comboAnneeScolaire.setItems(annees);
-        comboAnneeScolaire.getSelectionModel().selectFirst();
+        comboAnneeScolaire.setItems(FXCollections.observableArrayList(ConfigurationEcoleRepository.anneesDisponibles()));
+        comboAnneeScolaire.getSelectionModel().select(ConfigurationEcoleRepository.obtenirAnneeActive());
     }
 
     /**

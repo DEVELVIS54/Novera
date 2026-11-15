@@ -6,8 +6,8 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 /**
- * AnnÃ©e scolaire active, observable par l'interface : quand elle change, la fenÃªtre principale
- * met Ã  jour son en-tÃªte et revient au tableau de bord.
+ * Année scolaire active, observable par l'interface : quand elle change, la fenêtre principale
+ * met à jour son en-tête et revient au tableau de bord.
  */
 public final class AnneeActive {
 
@@ -16,12 +16,12 @@ public final class AnneeActive {
     private AnneeActive() {
     }
 
-    /** Ã€ Ã©couter pour rÃ©agir Ã  un changement d'annÃ©e. */
+    /** À écouter pour réagir à un changement d'année. */
     public static ReadOnlyStringProperty propriete() {
         return ANNEE;
     }
 
-    /** AnnÃ©e active (lue en base la premiÃ¨re fois). */
+    /** Année active (lue en base la première fois). */
     public static String lire() {
         if (ANNEE.get() == null) {
             rafraichir();
@@ -29,12 +29,12 @@ public final class AnneeActive {
         return ANNEE.get();
     }
 
-    /** Relit l'annÃ©e active en base. */
+    /** Relit l'année active en base. */
     public static void rafraichir() {
         ANNEE.set(ConfigurationEcoleRepository.obtenirAnneeActive());
     }
 
-    /** Change l'annÃ©e active : enregistrÃ©e en base, puis annoncÃ©e Ã  l'interface. */
+    /** Change l'année active : enregistrée en base, puis annoncée à l'interface. */
     public static void definir(String annee) {
         ConfigurationEcoleRepository.definirAnneeActive(annee);
         ANNEE.set(annee);

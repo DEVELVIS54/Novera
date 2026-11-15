@@ -14,20 +14,20 @@
 
     <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
 
-    <Label text="ðŸ“… AnnÃ©e scolaire" styleClass="section-title"/>
+    <Label text="📅 Année scolaire" styleClass="section-title"/>
 
     <Label wrapText="true" styleClass="info-label"
-           text="Les notes, les calculs de moyennes et les bulletins concernent l'annÃ©e active. Les donnÃ©es des autres annÃ©es sont conservÃ©es : changez d'annÃ©e pour les consulter."/>
+           text="Les notes, les calculs de moyennes et les bulletins concernent l'année active. Les données des autres années sont conservées : changez d'année pour les consulter."/>
 
     <VBox spacing="8" styleClass="form-panel" maxWidth="520">
         <padding><Insets top="15" right="15" bottom="15" left="15"/></padding>
-        <Label text="AnnÃ©e active" styleClass="field-label"/>
+        <Label text="Année active" styleClass="field-label"/>
         <Label fx:id="anneeActiveLabel" styleClass="section-title"/>
-        <Label text="Changer d'annÃ©e" styleClass="field-label"/>
+        <Label text="Changer d'année" styleClass="field-label"/>
         <ComboBox fx:id="anneeCombo" maxWidth="Infinity"/>
         <HBox spacing="10">
-            <Button text="âœ… Activer cette annÃ©e" styleClass="primary-button-small" onAction="#onActiverClick"/>
-            <Button text="âž• Ouvrir l'annÃ©e suivante" styleClass="secondary-button" onAction="#onOuvrirSuivanteClick"/>
+            <Button text="✅ Activer cette année" styleClass="primary-button-small" onAction="#onActiverClick"/>
+            <Button text="➕ Ouvrir l'année suivante" styleClass="secondary-button" onAction="#onOuvrirSuivanteClick"/>
         </HBox>
     </VBox>
 
