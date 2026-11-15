@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.TreeSet;
 
 /**
- * AccÃ¨s Ã  la configuration de l'Ã©cole (table Ã  1 seule ligne, id=1).
+ * Accès à la configuration de l'école (table à 1 seule ligne, id=1).
  */
 public class ConfigurationEcoleRepository {
 
@@ -47,7 +47,7 @@ public class ConfigurationEcoleRepository {
             return config;
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erreur lecture configuration Ã©cole : " + e.getMessage(), e);
+            throw new RuntimeException("Erreur lecture configuration école : " + e.getMessage(), e);
         }
     }
 
@@ -67,7 +67,7 @@ public class ConfigurationEcoleRepository {
             stmt.setDouble(2, seuilRedoublement);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException("Erreur mise Ã  jour des seuils : " + e.getMessage(), e);
+            throw new RuntimeException("Erreur mise à jour des seuils : " + e.getMessage(), e);
         }
     }
 
@@ -78,16 +78,16 @@ public class ConfigurationEcoleRepository {
             stmt.setString(1, nom);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException("Erreur mise Ã  jour configuration Ã©cole : " + e.getMessage(), e);
+            throw new RuntimeException("Erreur mise à jour configuration école : " + e.getMessage(), e);
         }
     }
 
     // ===================================================
-    // AnnÃ©e scolaire active
-    // Les notes, calculs et moyennes sont lus et Ã©crits dans cette annÃ©e.
+    // Année scolaire active
+    // Les notes, calculs et moyennes sont lus et écrits dans cette année.
     // ===================================================
 
-    /** AnnÃ©e scolaire active de l'Ã©cole ; l'annÃ©e en cours si aucune n'est enregistrÃ©e. */
+    /** Année scolaire active de l'école ; l'année en cours si aucune n'est enregistrée. */
     public static String obtenirAnneeActive() {
         String sql = "SELECT annee_scolaire_active FROM configuration_ecole WHERE id = 1";
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
@@ -101,14 +101,14 @@ public class ConfigurationEcoleRepository {
             }
             return AnneeScolaire.courante();
         } catch (SQLException e) {
-            throw new RuntimeException("Erreur lecture de l'annÃ©e scolaire active : " + e.getMessage(), e);
+            throw new RuntimeException("Erreur lecture de l'année scolaire active : " + e.getMessage(), e);
         }
     }
 
-    /** Change l'annÃ©e scolaire active (format AAAA-AAAA, annÃ©es consÃ©cutives). */
+    /** Change l'année scolaire active (format AAAA-AAAA, années consécutives). */
     public static void definirAnneeActive(String annee) {
         if (!AnneeScolaire.estValide(annee)) {
-            throw new IllegalArgumentException("AnnÃ©e scolaire invalide : " + annee);
+            throw new IllegalArgumentException("Année scolaire invalide : " + annee);
         }
         String sql = "UPDATE configuration_ecole SET annee_scolaire_active = ?, updated_at = CURRENT_TIMESTAMP WHERE id = 1";
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
@@ -116,11 +116,11 @@ public class ConfigurationEcoleRepository {
             stmt.setString(1, annee);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException("Erreur changement d'annÃ©e scolaire : " + e.getMessage(), e);
+            throw new RuntimeException("Erreur changement d'année scolaire : " + e.getMessage(), e);
         }
     }
 
-    /** AnnÃ©es ayant des donnÃ©es, plus l'annÃ©e active, de la plus rÃ©cente Ã  la plus ancienne. */
+    /** Années ayant des données, plus l'année active, de la plus récente à la plus ancienne. */
     public static List<String> anneesDisponibles() {
         String sql = """
             SELECT annee_scolaire FROM notes
@@ -140,7 +140,7 @@ public class ConfigurationEcoleRepository {
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Erreur lecture des annÃ©es scolaires : " + e.getMessage(), e);
+            throw new RuntimeException("Erreur lecture des années scolaires : " + e.getMessage(), e);
         }
         return new ArrayList<>(annees);
     }

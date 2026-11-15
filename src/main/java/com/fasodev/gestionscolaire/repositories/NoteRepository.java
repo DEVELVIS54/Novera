@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Notes des Ã©lÃ¨ves. Toutes les lectures et Ã©critures concernent l'annÃ©e scolaire active
+ * Notes des élèves. Toutes les lectures et écritures concernent l'année scolaire active
  * (voir {@link ConfigurationEcoleRepository#obtenirAnneeActive()}).
  */
 public class NoteRepository {
@@ -101,7 +101,7 @@ public class NoteRepository {
             if (keys.next()) note.setId(keys.getInt(1));
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erreur crÃ©ation note : " + e.getMessage(), e);
+            throw new RuntimeException("Erreur création note : " + e.getMessage(), e);
         }
     }
 
@@ -117,7 +117,7 @@ public class NoteRepository {
             stmt.executeUpdate();
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erreur mise Ã  jour note : " + e.getMessage(), e);
+            throw new RuntimeException("Erreur mise à jour note : " + e.getMessage(), e);
         }
     }
 

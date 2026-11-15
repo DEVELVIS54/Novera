@@ -55,7 +55,7 @@ public class DashboardService {
                 + "AND affecte_etat = 1 AND subvention_active = 1");
 
             double encaisse = 0;
-            try (ResultSet rs = stmt.executeQuery("SELECT COALESCE(SUM(montant), 0) FROM paiements")) {
+            try (ResultSet rs = stmt.executeQuery("SELECT COALESCE(SUM(montant), 0) FROM paiements WHERE annee_scolaire = (SELECT annee_scolaire_active FROM configuration_ecole WHERE id = 1)")) {
                 if (rs.next()) encaisse = rs.getDouble(1);
             }
 

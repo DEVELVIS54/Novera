@@ -24,9 +24,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Test d'intÃ©gration : une vraie base SQLite (fichier temporaire) crÃ©Ã©e par
- * DatabaseInitializer, avec ses migrations, puis utilisÃ©e par les repositories.
- * La vraie base de l'utilisateur n'est jamais touchÃ©e.
+ * Test d'intégration : une vraie base SQLite (fichier temporaire) créée par
+ * DatabaseInitializer, avec ses migrations, puis utilisée par les repositories.
+ * La vraie base de l'utilisateur n'est jamais touchée.
  */
 class AnneeActiveIntegrationTest {
 
@@ -35,8 +35,8 @@ class AnneeActiveIntegrationTest {
 
     private NoteRepository notes;
     private CalculMoyenneRepository calculs;
-    private String anneeA;   // annÃ©e active au dÃ©part
-    private String anneeB;   // annÃ©e suivante
+    private String anneeA;   // année active au départ
+    private String anneeB;   // année suivante
 
     @BeforeEach
     void preparer() throws SQLException {
@@ -96,7 +96,7 @@ class AnneeActiveIntegrationTest {
         assertNull(notes.findByEtudiantMatiereTypeTrimestre(1, 1, Note.TYPE_DEVOIR1, 1));
         assertTrue(notes.findByEtudiantAndTrimestre(1, 1).isEmpty());
 
-        // MÃªmes Ã©lÃ¨ve, matiÃ¨re, type et trimestre : une 2e note, pas un Ã©crasement.
+        // Mêmes élève, matière, type et trimestre : une 2e note, pas un écrasement.
         notes.upsert(new Note(1, 1, Note.TYPE_DEVOIR1, 9.0, 1));
         assertEquals(2, compter("SELECT COUNT(*) FROM notes"));
         assertEquals(9.0, notes.findByEtudiantMatiereTypeTrimestre(1, 1, Note.TYPE_DEVOIR1, 1).getValeur());

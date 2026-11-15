@@ -14,8 +14,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
- * VÃ©rifie la migration 3 (annÃ©e scolaire obligatoire) sur une base SQLite en mÃ©moire qui
- * reproduit le schÃ©ma de la version 2 (annÃ©e avec valeur par dÃ©faut), avec des donnÃ©es.
+ * Vérifie la migration 3 (année scolaire obligatoire) sur une base SQLite en mémoire qui
+ * reproduit le schéma de la version 2 (année avec valeur par défaut), avec des données.
  */
 class MigrationRetraitDefautAnneeTest {
 
@@ -111,7 +111,7 @@ class MigrationRetraitDefautAnneeTest {
             migrer(conn);
 
             try (ResultSet rs = st.executeQuery("PRAGMA foreign_key_check")) {
-                assertFalse(rs.next(), "des clÃ©s Ã©trangÃ¨res sont cassÃ©es aprÃ¨s la migration");
+                assertFalse(rs.next(), "des clés étrangères sont cassées après la migration");
             }
             assertEquals("1", texte(conn,
                 "SELECT COUNT(*) FROM sqlite_master WHERE type = 'index' AND name = 'idx_notes_etudiant'"));

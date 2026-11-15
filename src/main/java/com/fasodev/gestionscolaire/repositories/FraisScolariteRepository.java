@@ -16,6 +16,7 @@ public class FraisScolariteRepository {
             SELECT f.*, c.nom AS classe_nom
             FROM frais_scolarite f
             JOIN classes c ON c.id = f.classe_id
+            WHERE f.annee_scolaire = (SELECT annee_scolaire_active FROM configuration_ecole WHERE id = 1)
             ORDER BY c.nom
         """;
         List<FraisScolarite> liste = new ArrayList<>();
@@ -37,7 +38,7 @@ public class FraisScolariteRepository {
      * (somme de toutes les lignes de frais rattachées, ex: scolarité + cotisation).
      */
     public double getMontantTotalParClasse(int classeId) {
-        String sql = "SELECT COALESCE(SUM(montant), 0) FROM frais_scolarite WHERE classe_id = ?";
+        String sql = "SELECT COALESCE(SUM(montant), 0) FROM frais_scolarite WHERE classe_id = ? AND annee_scolaire = (SELECT annee_scolaire_active FROM configuration_ecole WHERE id = 1)";
 
         try (Connection conn = db.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -53,8 +54,8 @@ public class FraisScolariteRepository {
 
     public FraisScolarite save(FraisScolarite f) {
         String sql = """
-            INSERT INTO frais_scolarite (classe_id, montant, description, sync_status)
-            VALUES (?, ?, ?, 'pending')
+            INSERT INTO frais_scolarite (classe_id, montant, description, sync_status, annee_scolaire)
+            VALUES (?, ?, ?, 'pending', (SELECT annee_scolaire_active FROM configuration_ecole WHERE id = 1))
         """;
 
         try (Connection conn = db.getConnection();
@@ -71,6 +72,29 @@ public class FraisScolariteRepository {
 
         } catch (SQLException e) {
             throw new RuntimeException("Erreur création frais scolarité : " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Recopie les frais d'une année scolaire vers une autre (ouverture d'une nouvelle année).
+     * Ne fait rien si l'année cible a déjà des frais. Retourne le nombre de lignes copiées.
+     */
+    public int copierVersAnnee(String anneeSource, String anneeCible) {
+        String sql = """
+            INSERT INTO frais_scolarite (classe_id, montant, description, sync_status, annee_scolaire)
+            SELECT classe_id, montant, description, 'pending', ?
+            FROM frais_scolarite
+            WHERE annee_scolaire = ?
+              AND NOT EXISTS (SELECT 1 FROM frais_scolarite WHERE annee_scolaire = ?)
+        """;
+        try (Connection conn = db.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, anneeCible);
+            stmt.setString(2, anneeSource);
+            stmt.setString(3, anneeCible);
+            return stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur copie des frais de scolarité : " + e.getMessage(), e);
         }
     }
 

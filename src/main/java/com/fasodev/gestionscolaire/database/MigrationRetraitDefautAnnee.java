@@ -7,12 +7,12 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 /**
- * Migration 3 : rend l'annÃ©e scolaire obligatoire dans les notes, les calculs de moyennes et
- * les moyennes trimestrielles, en retirant la valeur par dÃ©faut posÃ©e par la migration 2.
+ * Migration 3 : rend l'année scolaire obligatoire dans les notes, les calculs de moyennes et
+ * les moyennes trimestrielles, en retirant la valeur par défaut posée par la migration 2.
  *
- * <p>Depuis le lot Â« annÃ©e active Â», tous les accÃ¨s Ã  ces tables renseignent l'annÃ©e. Sans valeur
- * par dÃ©faut, un oubli futur Ã©choue clairement au lieu de ranger la donnÃ©e dans la mauvaise annÃ©e.
- * Les donnÃ©es et leurs identifiants sont conservÃ©s (SQLite impose de recrÃ©er les tables).
+ * <p>Depuis le lot « année active », tous les accès à ces tables renseignent l'année. Sans valeur
+ * par défaut, un oubli futur échoue clairement au lieu de ranger la donnée dans la mauvaise année.
+ * Les données et leurs identifiants sont conservés (SQLite impose de recréer les tables).
  */
 final class MigrationRetraitDefautAnnee {
 
@@ -33,20 +33,20 @@ final class MigrationRetraitDefautAnnee {
     static SchemaMigrations.Migration migration() {
         return new SchemaMigrations.Migration(
             VERSION,
-            "AnnÃ©e scolaire obligatoire (retrait de la valeur par dÃ©faut)",
+            "Année scolaire obligatoire (retrait de la valeur par défaut)",
             MigrationRetraitDefautAnnee::appliquer);
     }
 
     private static void appliquer(Connection conn) throws SQLException {
-        // MÃªme ordre que la migration 2 : calcul_moyennes_trimestre est rÃ©fÃ©rencÃ©e par les moyennes.
+        // Même ordre que la migration 2 : calcul_moyennes_trimestre est référencée par les moyennes.
         reconstruire(conn, "notes", COLONNES_NOTES, ddlNotes("notes_new"));
         reconstruire(conn, "calcul_moyennes_trimestre", COLONNES_CALCULS,
             ddlCalculs("calcul_moyennes_trimestre_new"));
         reconstruire(conn, "moyennes_trimestrielles", COLONNES_MOYENNES,
             ddlMoyennes("moyennes_trimestrielles_new"));
 
-        // Les index disparaissent avec la table ; les triggers de synchronisation sont recrÃ©Ã©s
-        // par DatabaseInitializer juste aprÃ¨s les migrations.
+        // Les index disparaissent avec la table ; les triggers de synchronisation sont recréés
+        // par DatabaseInitializer juste après les migrations.
         try (Statement st = conn.createStatement()) {
             st.execute("CREATE INDEX IF NOT EXISTS idx_notes_etudiant ON notes(etudiant_id)");
             st.execute("CREATE INDEX IF NOT EXISTS idx_notes_matiere ON notes(matiere_id)");
@@ -70,7 +70,7 @@ final class MigrationRetraitDefautAnnee {
         }
     }
 
-    /** Vrai si la colonne annee_scolaire de la table porte encore une valeur par dÃ©faut. */
+    /** Vrai si la colonne annee_scolaire de la table porte encore une valeur par défaut. */
     private static boolean aUneValeurParDefaut(Connection conn, String table) throws SQLException {
         try (PreparedStatement ps = conn.prepareStatement(
                 "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?")) {
@@ -85,7 +85,7 @@ final class MigrationRetraitDefautAnnee {
         }
     }
 
-    // MÃªmes tables que MigrationAnneeScolaire, sans valeur par dÃ©faut sur annee_scolaire.
+    // Mêmes tables que MigrationAnneeScolaire, sans valeur par défaut sur annee_scolaire.
 
     static String ddlNotes(String nomTable) {
         return """

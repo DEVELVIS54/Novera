@@ -48,14 +48,15 @@ public final class SchemaMigrations {
 
     /**
      * Migrations à appliquer après la version de base, par numéro croissant.
-     * La prochaine à ajouter sera la version 4.
+     * La prochaine à ajouter sera la version 5.
      *
      * <p>Version 2 : année scolaire. Les données déjà présentes sont rattachées à
      * l'année scolaire en cours au moment de la migration.
      */
     static final List<Migration> MIGRATIONS = List.of(
         MigrationAnneeScolaire.migration(AnneeScolaire.courante()),
-        MigrationRetraitDefautAnnee.migration()
+        MigrationRetraitDefautAnnee.migration(),
+        MigrationFinancesAnnee.migration(AnneeScolaire.courante())
     );
 
     private SchemaMigrations() {

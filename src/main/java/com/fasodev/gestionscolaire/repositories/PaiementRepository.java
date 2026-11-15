@@ -13,7 +13,7 @@ public class PaiementRepository {
     private final DatabaseConnection db = DatabaseConnection.getInstance();
 
     public List<Paiement> findByEtudiantId(int etudiantId) {
-        String sql = "SELECT * FROM paiements WHERE etudiant_id = ? ORDER BY date_paiement DESC";
+        String sql = "SELECT * FROM paiements WHERE etudiant_id = ? AND annee_scolaire = (SELECT annee_scolaire_active FROM configuration_ecole WHERE id = 1) ORDER BY date_paiement DESC";
         List<Paiement> liste = new ArrayList<>();
 
         try (Connection conn = db.getConnection();
@@ -30,7 +30,7 @@ public class PaiementRepository {
     }
 
     public double getTotalPayeParEtudiant(int etudiantId) {
-        String sql = "SELECT COALESCE(SUM(montant), 0) FROM paiements WHERE etudiant_id = ?";
+        String sql = "SELECT COALESCE(SUM(montant), 0) FROM paiements WHERE etudiant_id = ? AND annee_scolaire = (SELECT annee_scolaire_active FROM configuration_ecole WHERE id = 1)";
 
         try (Connection conn = db.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -46,8 +46,8 @@ public class PaiementRepository {
 
     public Paiement save(Paiement p) {
         String sql = """
-            INSERT INTO paiements (etudiant_id, montant, date_paiement, statut, notes, cree_par, sync_status)
-            VALUES (?, ?, ?, ?, ?, ?, 'pending')
+            INSERT INTO paiements (etudiant_id, montant, date_paiement, statut, notes, cree_par, sync_status, annee_scolaire)
+            VALUES (?, ?, ?, ?, ?, ?, 'pending', (SELECT annee_scolaire_active FROM configuration_ecole WHERE id = 1))
         """;
 
         try (Connection conn = db.getConnection();

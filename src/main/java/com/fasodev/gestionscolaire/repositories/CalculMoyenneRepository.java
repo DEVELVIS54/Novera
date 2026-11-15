@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Calcul, verrouillage et lecture des moyennes trimestrielles. Tout concerne l'annÃ©e
+ * Calcul, verrouillage et lecture des moyennes trimestrielles. Tout concerne l'année
  * scolaire active (voir {@link ConfigurationEcoleRepository#obtenirAnneeActive()}).
  */
 public class CalculMoyenneRepository {
@@ -70,7 +70,7 @@ public class CalculMoyenneRepository {
             return keys.next() ? keys.getInt(1) : -1;
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erreur crÃ©ation calcul : " + e.getMessage(), e);
+            throw new RuntimeException("Erreur création calcul : " + e.getMessage(), e);
         }
     }
 
@@ -112,7 +112,7 @@ public class CalculMoyenneRepository {
             stmt.executeUpdate();
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erreur dÃ©verrouillage : " + e.getMessage(), e);
+            throw new RuntimeException("Erreur déverrouillage : " + e.getMessage(), e);
         }
     }
 
@@ -193,8 +193,13 @@ public class CalculMoyenneRepository {
         return resultats;
     }
 
-    /** Moyenne trimestrielle enregistrÃ©e d'un Ã©tudiant, ou 0 si non calculÃ©e. */
+    /** Moyenne trimestrielle enregistrée d'un étudiant, ou 0 si non calculée. */
     public double getMoyenneEtudiant(int etudiantId, int trimestre) {
+        return getMoyenneEtudiant(etudiantId, trimestre, anneeActive());
+    }
+
+    /** Moyenne trimestrielle enregistrée d'un étudiant pour une année scolaire donnée, ou 0. */
+    public double getMoyenneEtudiant(int etudiantId, int trimestre, String annee) {
         String sql = "SELECT moyenne FROM moyennes_trimestrielles "
             + "WHERE etudiant_id = ? AND trimestre = ? AND annee_scolaire = ?";
 
@@ -203,12 +208,12 @@ public class CalculMoyenneRepository {
 
             stmt.setInt(1, etudiantId);
             stmt.setInt(2, trimestre);
-            stmt.setString(3, anneeActive());
+            stmt.setString(3, annee);
             ResultSet rs = stmt.executeQuery();
             return rs.next() ? rs.getDouble("moyenne") : 0;
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erreur lecture moyenne Ã©tudiant : " + e.getMessage(), e);
+            throw new RuntimeException("Erreur lecture moyenne étudiant : " + e.getMessage(), e);
         }
     }
 }
