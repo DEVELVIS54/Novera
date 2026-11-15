@@ -124,14 +124,16 @@ public class ParentController {
             FROM sync_records
             WHERE table_name = 'paiements' AND deleted = FALSE
               AND (payload->>'etudiant_id')::bigint = ?
-            """, Double.class, etudiantId);
+              AND (?::text IS NULL OR payload->>'annee_scolaire' IS NULL OR payload->>'annee_scolaire' = ?)
+            """, Double.class, etudiantId, annee, annee);
 
         Double fraisClasse = jdbc.queryForObject("""
             SELECT COALESCE(SUM((payload->>'montant')::numeric), 0)::float8
             FROM sync_records
             WHERE table_name = 'frais_scolarite' AND deleted = FALSE
               AND (payload->>'classe_id')::bigint = ?
-            """, Double.class, classeId);
+              AND (?::text IS NULL OR payload->>'annee_scolaire' IS NULL OR payload->>'annee_scolaire' = ?)
+            """, Double.class, classeId, annee, annee);
 
         // Réduction « subvention de l'État » : même règle que le logiciel de bureau.
         JsonNode subvention = lireLigne("configuration_subvention_etat", 1);

@@ -27,3 +27,6 @@ Thumbs.db
 # Secrets
 .env
 *.env
+
+# Application empaquetee
+dist/
