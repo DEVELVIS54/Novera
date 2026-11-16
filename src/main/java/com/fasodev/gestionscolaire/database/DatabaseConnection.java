@@ -15,7 +15,12 @@ import java.sql.Statement;
 public class DatabaseConnection {
 
     private static DatabaseConnection instance;
-    private final String url;
+    private final String url;
+
+    /** Adresse JDBC de la base r~u00E9ellement utilis~u00E9e (messages de d~u00E9marrage, diagnostic). */
+    public String getUrl() {
+        return url;
+    }
 
     private DatabaseConnection() {
         this("jdbc:sqlite:" + AppPaths.getDatabaseFilePath());

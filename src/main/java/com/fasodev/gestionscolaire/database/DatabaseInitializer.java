@@ -351,9 +351,9 @@ public class DatabaseInitializer {
 
 
             if (premierLancement) {
-                System.out.println("✅ Base de données créée : " + AppPaths.getDatabaseFilePath());
+                System.out.println("✅ Base de données créée : " + DatabaseConnection.getInstance().getUrl());
             } else {
-                System.out.println("✅ Base de données existante chargée : " + AppPaths.getDatabaseFilePath());
+                System.out.println("✅ Base de données existante chargée : " + DatabaseConnection.getInstance().getUrl());
             }
 
         } catch (SQLException e) {
