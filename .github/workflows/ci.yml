@@ -1,0 +1,37 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main, "feature/**" ]
+  pull_request:
+
+jobs:
+  bureau:
+    name: Application desktop
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+      - name: mvn test
+        run: mvn -B test
+
+  serveur:
+    name: Serveur et espace parents
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: novera-server
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+          cache-dependency-path: novera-server/pom.xml
+      - name: mvn test
+        run: mvn -B test
