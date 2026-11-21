@@ -218,6 +218,7 @@ public class PassageClasseService {
         } else if (resultat.getStatutFinal().equals("REDOUBLE")) {
             // Reste dans sa classe, incrémenter redoublements
             etudiant.setNombreRedoublements(etudiant.getNombreRedoublements() + 1);
+            new SubventionEtatService().appliquerPerteSiSeuilAtteint(etudiant);
             resultat.setClasseSuivanteId(etudiant.getClasseId());
         }
 

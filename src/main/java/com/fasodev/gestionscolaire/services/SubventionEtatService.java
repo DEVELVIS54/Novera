@@ -54,4 +54,22 @@ public class SubventionEtatService {
 
         configRepository.mettreAJour(reductionCep, reductionBepc, seuilRedoublements);
     }
+
+    /**
+     * Perte de la subvention de l'État : un élève affecté dont la subvention est active la perd quand
+     * son nombre de redoublements atteint le seuil configuré. Le changement est fait sur l'objet ;
+     * l'appelant l'enregistre (EtudiantRepository.mettreAJour).
+     *
+     * @return vrai si la subvention vient d'être perdue
+     */
+    public boolean appliquerPerteSiSeuilAtteint(Etudiant etudiant) {
+        if (!etudiant.isAffecteEtat() || !etudiant.isSubventionActive()) {
+            return false;
+        }
+        if (etudiant.getNombreRedoublements() >= getConfiguration().seuilRedoublementsPerte) {
+            etudiant.setSubventionActive(false);
+            return true;
+        }
+        return false;
+    }
 }

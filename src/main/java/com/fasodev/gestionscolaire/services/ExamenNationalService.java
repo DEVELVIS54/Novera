@@ -179,6 +179,7 @@ public class ExamenNationalService {
             if (decision.equals("redouble")) {
                 // Redouble : reste dans sa classe, incrémenter compteur
                 etudiant.setNombreRedoublements(etudiant.getNombreRedoublements() + 1);
+                new SubventionEtatService().appliquerPerteSiSeuilAtteint(etudiant);
                 resultat.setStatut_final("REDOUBLE");
             } else if (decision.equals("parti")) {
                 // Parti : quitte l'école
