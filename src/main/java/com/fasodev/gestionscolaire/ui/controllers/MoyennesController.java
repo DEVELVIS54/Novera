@@ -137,6 +137,7 @@ public class MoyennesController implements Initializable {
         try {
             java.io.File pdf = new com.fasodev.gestionscolaire.services.BulletinPdfService()
                 .genererBulletinsClasse(classe.getId(), trimestre);
+            com.fasodev.gestionscolaire.ui.OuvrirFichier.ouvrir(pdf);
             afficherMessage("✅ Bulletins générés : " + pdf.getAbsolutePath());
         } catch (IllegalStateException e) {
             afficherErreur(e.getMessage());

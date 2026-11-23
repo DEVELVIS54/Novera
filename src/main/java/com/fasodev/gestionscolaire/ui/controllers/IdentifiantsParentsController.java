@@ -197,6 +197,7 @@ public class IdentifiantsParentsController implements Initializable {
                         obtenirNomEcole(),
                         fichier.getAbsolutePath()
                     );
+                    com.fasodev.gestionscolaire.ui.OuvrirFichier.ouvrir(fichier);
 
                     Platform.runLater(() -> {
                         afficherSucces(
